@@ -33,8 +33,8 @@ public class RowFactory {
           rs.getObject(index),
           rs.getMetaData().getColumnType(index),
           rs.getMetaData().getPrecision(index),
-          rs.getMetaData().getScale(index)
-      );
+          rs.getMetaData().getScale(index),
+          rs.getMetaData().getColumnClassName(index));
       RecordField<?> field = new RecordFieldConverter().convert(sqlField);
       row.addField(field);
     }

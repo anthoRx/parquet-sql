@@ -29,20 +29,24 @@ public class SQLField {
 
   final private Optional<Integer> scale;
 
-  public SQLField(String name, Object value, int sqlType) {
+  final private String columnClassName;
+
+  public SQLField(String name, Object value, int sqlType, String columnClassName) {
     this.name = name;
     this.value = value;
     this.sqlType = sqlType;
+    this.columnClassName = columnClassName;
     this.precision = Optional.empty();
     this.scale = Optional.empty();
   }
 
-  public SQLField(String name, Object value, int sqlType, int precision, int scale) {
+  public SQLField(String name, Object value, int sqlType, int precision, int scale, String columnClassName) {
     this.name = name;
     this.value = value;
     this.sqlType = sqlType;
     this.precision = Optional.of(precision);
     this.scale = Optional.of(scale);
+    this.columnClassName = columnClassName;
   }
 
   public String getName() {
@@ -63,5 +67,9 @@ public class SQLField {
 
   public Optional<Integer> getScale() {
     return scale;
+  }
+
+  public String getColumnClassName() {
+    return columnClassName;
   }
 }
