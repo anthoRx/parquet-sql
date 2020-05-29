@@ -69,7 +69,9 @@ public class SqlTypeMapping {
   }
 
   static private PrimitiveType mapDouble(SQLMetaField sqlMetaField) {
-    return createPrimitiveType(sqlMetaField.getName(), PrimitiveType.PrimitiveTypeName.DOUBLE, sqlMetaField.isNullable());
+    return org.apache.parquet.schema.Types
+        .optional(PrimitiveType.PrimitiveTypeName.DOUBLE)
+        .named(sqlMetaField.getName());
   }
 
   public static PrimitiveType getPrimitiveType(SQLMetaField sqlMetaField) throws ConvertException {

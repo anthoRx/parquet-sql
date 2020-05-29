@@ -33,14 +33,14 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
   }
 
   private HashMap<String, ConvertFunction> converters = new HashMap<String, ConvertFunction>() {{
-    put("java.lang.String", (sqlField) -> convertString(sqlField));
-    put("java.sql.Timestamp", (sqlField) -> convertTimestamp(sqlField));
-    put("oracle.sql.TIMESTAMP", (sqlField) -> convertOracleTimestamp(sqlField));
-    put("java.math.BigDecimal", (sqlField) -> convertBigDecimal(sqlField));
-    put("java.lang.Double", (sqlField) -> convertDouble(sqlField));
+    put("java.lang.String", RecordFieldConverter::convertString);
+    put("java.sql.Timestamp", RecordFieldConverter::convertTimestamp);
+    put("oracle.sql.TIMESTAMP", RecordFieldConverter::convertOracleTimestamp);
+    put("java.math.BigDecimal", RecordFieldConverter::convertBigDecimal);
+    put("java.lang.Double", RecordFieldConverter::convertDouble);
   }};
 
-  private RecordField<Binary> convertString(SQLField sqlField) {
+  private static RecordField<Binary> convertString(SQLField sqlField) {
     String value;
     if (sqlField.getValue() instanceof char[]) {
       value = new String((char[]) sqlField.getValue());
@@ -51,7 +51,7 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
     return new RecordField<>(sqlField.getName(), binaryString, RecordConsumer::addBinary);
   }
 
-  private RecordField<Long> convertOracleTimestamp(SQLField sqlField) throws ConvertException {
+  private static RecordField<Long> convertOracleTimestamp(SQLField sqlField) throws ConvertException {
     TIMESTAMP timestamp = (TIMESTAMP) sqlField.getValue();
     try {
       return new RecordField<>(sqlField.getName(), timestamp.timestampValue().getTime(), RecordConsumer::addLong);
@@ -60,12 +60,12 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
     }
   }
 
-  private RecordField<Long> convertTimestamp(SQLField sqlField) throws ConvertException {
+  private static RecordField<Long> convertTimestamp(SQLField sqlField) throws ConvertException {
     Timestamp timestamp = (Timestamp) sqlField.getValue();
     return new RecordField<>(sqlField.getName(), timestamp.getTime(), RecordConsumer::addLong);
   }
 
-  private RecordField<? extends Object> convertBigDecimal(SQLField sqlField) throws ConvertException {
+  private static RecordField<? extends Object> convertBigDecimal(SQLField sqlField) throws ConvertException {
     int checkedPrecision = sqlField
         .getPrecision()
         .filter(p -> p > 0)
@@ -83,7 +83,7 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
     }
   }
 
-  private RecordField<Double> convertDouble(SQLField sqlField) throws ConvertException {
+  private static RecordField<Double> convertDouble(SQLField sqlField) throws ConvertException {
     BigDecimal bigDecimal = (BigDecimal) sqlField.getValue();
     return new RecordField<>(sqlField.getName(), bigDecimal.doubleValue(), RecordConsumer::addDouble);
   }
