@@ -13,14 +13,12 @@
  *
  */
 
-package org.arx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.converter;
 
+import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
-import org.arx.parquet.sql.model.SQLMetaField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -28,9 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessageTypeConverter implements Converter<ResultSetMetaData, MessageType> {
-  private static final Logger LOG = LoggerFactory.getLogger(MessageTypeConverter.class);
-  private static final String DEFAULT_SCHEMA_NAME = "default_schema";
-
   private final String schemaName;
 
   public MessageTypeConverter(String schemaName) {
@@ -44,15 +39,15 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
       int columnCount = resultSetMetaData.getColumnCount();
       for (int index = 1; index <= columnCount; index++) {
 
-        SQLMetaField sqlMetaField = new SQLMetaField(
+        SQLColumnDefinition sqlColumnDefinition = new SQLColumnDefinition(
             resultSetMetaData.getColumnName(index),
             resultSetMetaData.getColumnType(index),
-            resultSetMetaData.isNullable(index) == 1,
+            resultSetMetaData.isNullable(index) == ResultSetMetaData.columnNullable,
             resultSetMetaData.getPrecision(index),
             resultSetMetaData.getScale(index),
             resultSetMetaData.getColumnClassName(index));
 
-        PrimitiveType primitiveType = SqlTypeMapping.getPrimitiveType(sqlMetaField);
+        PrimitiveType primitiveType = SqlTypeMapping.getPrimitiveType(sqlColumnDefinition);
         convertedTypes.add(primitiveType);
       }
     } catch (SQLException e) {

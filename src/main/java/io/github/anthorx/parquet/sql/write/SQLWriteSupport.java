@@ -13,13 +13,13 @@
  *
  */
 
-package org.arx.parquet.sql.write;
+package io.github.anthorx.parquet.sql.write;
 
+import io.github.anthorx.parquet.sql.model.Row;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
-import org.arx.parquet.sql.model.Row;
 
 import java.util.HashMap;
 import java.util.Map;

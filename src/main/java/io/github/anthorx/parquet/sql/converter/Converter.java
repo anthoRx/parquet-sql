@@ -13,15 +13,9 @@
  *
  */
 
-package org.arx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.converter;
 
-public class ConvertException extends Exception {
+public interface Converter<T, U> {
 
-  public ConvertException(String s) {
-    super(s);
-  }
-
-  public ConvertException(String s, Throwable throwable) {
-    super(s, throwable);
-  }
+  U convert(T t) throws ConvertException;
 }

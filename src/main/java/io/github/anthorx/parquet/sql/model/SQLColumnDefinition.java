@@ -13,9 +13,9 @@
  *
  */
 
-package org.arx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.model;
 
-public class SQLMetaField {
+public class SQLColumnDefinition {
 
   private final String name;
   private final int columnType;
@@ -24,7 +24,7 @@ public class SQLMetaField {
   private final int scale;
   private final String columnTypeName;
 
-  public SQLMetaField(String name, int columnType, boolean isNullable, int precision, int scale, String columnTypeName) {
+  public SQLColumnDefinition(String name, int columnType, boolean isNullable, int precision, int scale, String columnTypeName) {
     this.name = name;
     this.columnType = columnType;
     this.isNullable = isNullable;

@@ -13,16 +13,19 @@
  *
  */
 
-package org.arx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.converter;
 
+import io.github.anthorx.parquet.sql.model.RecordField;
+import io.github.anthorx.parquet.sql.model.SQLField;
 import oracle.sql.TIMESTAMP;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
-import org.arx.parquet.sql.model.RecordField;
-import org.arx.parquet.sql.model.SQLField;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.HashMap;
 
 public class RecordFieldConverter implements Converter<SQLField, RecordField<?>> {

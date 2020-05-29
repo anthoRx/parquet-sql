@@ -13,8 +13,10 @@
  *
  */
 
-package org.arx.parquet.sql.write;
+package io.github.anthorx.parquet.sql.write;
 
+import io.github.anthorx.parquet.sql.converter.MessageTypeConverter;
+import io.github.anthorx.parquet.sql.model.Row;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.column.ParquetProperties;
@@ -22,9 +24,7 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.schema.MessageType;
-import org.arx.parquet.sql.converter.ConvertException;
-import org.arx.parquet.sql.converter.MessageTypeConverter;
-import org.arx.parquet.sql.model.Row;
+import io.github.anthorx.parquet.sql.converter.ConvertException;
 
 import java.io.IOException;
 import java.sql.ResultSetMetaData;
