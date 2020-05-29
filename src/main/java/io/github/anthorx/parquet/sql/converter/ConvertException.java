@@ -13,28 +13,15 @@
  *
  */
 
-package org.arx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.converter;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ConvertException extends Exception {
 
-public class Row {
-
-  List<RecordField<?>> fields = new ArrayList<>();
-
-  public Row() {
+  public ConvertException(String s) {
+    super(s);
   }
 
-  public <T> void addField(RecordField<T> field) {
-    fields.add(field);
-  }
-
-  public List<RecordField<?>> getFields() {
-    return fields;
-  }
-
-
-  public RecordField<?> getField(int index) {
-    return fields.get(index);
+  public ConvertException(String s, Throwable throwable) {
+    super(s, throwable);
   }
 }

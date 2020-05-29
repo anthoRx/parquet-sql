@@ -13,9 +13,28 @@
  *
  */
 
-package org.arx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.model;
 
-public interface Converter<T, U> {
+import java.util.ArrayList;
+import java.util.List;
 
-  U convert(T t) throws ConvertException;
+public class Row {
+
+  List<RecordField<?>> fields = new ArrayList<>();
+
+  public Row() {
+  }
+
+  public <T> void addField(RecordField<T> field) {
+    fields.add(field);
+  }
+
+  public List<RecordField<?>> getFields() {
+    return fields;
+  }
+
+
+  public RecordField<?> getField(int index) {
+    return fields.get(index);
+  }
 }

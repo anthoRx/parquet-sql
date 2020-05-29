@@ -13,10 +13,10 @@
  *
  */
 
-package org.arx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.model;
 
-import org.arx.parquet.sql.converter.ConvertException;
-import org.arx.parquet.sql.converter.RecordFieldConverter;
+import io.github.anthorx.parquet.sql.converter.RecordFieldConverter;
+import io.github.anthorx.parquet.sql.converter.ConvertException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

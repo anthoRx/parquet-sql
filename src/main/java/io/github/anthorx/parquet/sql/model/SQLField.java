@@ -13,7 +13,7 @@
  *
  */
 
-package org.arx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.model;
 
 import java.util.Optional;
 
