@@ -22,15 +22,90 @@ import org.arx.parquet.sql.model.RecordField;
 import org.arx.parquet.sql.model.SQLField;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
+import java.util.HashMap;
 
 public class RecordFieldConverter implements Converter<SQLField, RecordField<?>> {
 
+  @FunctionalInterface
+  private interface ConvertFunction {
+    RecordField<? extends Object> convert(SQLField sqlField) throws ConvertException;
+  }
+
+  private HashMap<String, ConvertFunction> converters = new HashMap<String, ConvertFunction>() {{
+    put("java.lang.String", RecordFieldConverter::convertString);
+    put("java.sql.Timestamp", RecordFieldConverter::convertTimestamp);
+    put("oracle.sql.TIMESTAMP", RecordFieldConverter::convertOracleTimestamp);
+    put("java.math.BigDecimal", RecordFieldConverter::convertBigDecimal);
+    put("java.lang.Double", RecordFieldConverter::convertDouble);
+  }};
+
+  private static RecordField<Binary> convertString(SQLField sqlField) {
+    String value;
+    if (sqlField.getValue() instanceof char[]) {
+      value = new String((char[]) sqlField.getValue());
+    } else {
+      value = (String) sqlField.getValue();
+    }
+    Binary binaryString = Binary.fromString(value);
+    return new RecordField<>(sqlField.getName(), binaryString, RecordConsumer::addBinary);
+  }
+
+  private static RecordField<Long> convertOracleTimestamp(SQLField sqlField) throws ConvertException {
+    TIMESTAMP timestamp = (TIMESTAMP) sqlField.getValue();
+    try {
+      return new RecordField<>(sqlField.getName(), timestamp.timestampValue().getTime(), RecordConsumer::addLong);
+    } catch (SQLException e) {
+      throw new ConvertException("impossible to convert " + sqlField.getName() + " field. Oracle timestamp can't be converted to Java timestamp", e);
+    }
+  }
+
+  private static RecordField<Long> convertTimestamp(SQLField sqlField) throws ConvertException {
+    Timestamp timestamp = (Timestamp) sqlField.getValue();
+    return new RecordField<>(sqlField.getName(), timestamp.getTime(), RecordConsumer::addLong);
+  }
+
+  private static RecordField<? extends Object> convertBigDecimal(SQLField sqlField) throws ConvertException {
+    int checkedPrecision = sqlField
+        .getPrecision()
+        .filter(p -> p > 0)
+        .orElse(18);
+    BigDecimal bd = (BigDecimal) sqlField.getValue();
+
+    if (checkedPrecision <= 9) {
+      return new RecordField<>(sqlField.getName(), bd.intValue(), RecordConsumer::addInteger);
+    } else if (checkedPrecision <= 18) {
+      return new RecordField<>(sqlField.getName(), bd.longValue(), RecordConsumer::addLong);
+    } else {
+      byte[] bdBytes = bd.unscaledValue().toByteArray();
+      Binary binaryArray = Binary.fromReusedByteArray(bdBytes);
+      return new RecordField<>(sqlField.getName(), binaryArray, RecordConsumer::addBinary);
+    }
+  }
+
+  private static RecordField<Double> convertDouble(SQLField sqlField) throws ConvertException {
+    BigDecimal bigDecimal = (BigDecimal) sqlField.getValue();
+    return new RecordField<>(sqlField.getName(), bigDecimal.doubleValue(), RecordConsumer::addDouble);
+  }
+
   @Override
   public RecordField<?> convert(SQLField sqlField) throws ConvertException {
+    if (sqlField.getValue() == null) {
+      return new RecordField<>(sqlField.getName(), null, (r, a) -> {
+      });
+    }
+    ConvertFunction converter = converters.get(sqlField.getColumnClassName());
+    if (converter == null) {
+      throw new ConvertException(String.format("impossible to convert %s. \"%s\" converter is not implemented",
+          sqlField.getName(), sqlField.getColumnClassName()));
+    }
+    return converter.convert(sqlField);
+  }
+
+  /**
+   * Being refactored
+   */
+  public RecordField<?> bySqlTypeConvert(SQLField sqlField) throws ConvertException {
     if (sqlField.getValue() == null) {
       return new RecordField(sqlField.getName(), null, (r, a) -> {
       });

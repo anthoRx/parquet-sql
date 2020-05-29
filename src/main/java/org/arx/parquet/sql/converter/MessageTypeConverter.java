@@ -18,6 +18,7 @@ package org.arx.parquet.sql.converter;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
+import org.arx.parquet.sql.model.SQLMetaField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +44,15 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
       int columnCount = resultSetMetaData.getColumnCount();
       for (int index = 1; index <= columnCount; index++) {
 
-        String columnName = resultSetMetaData.getColumnName(index);
-        int sqlColumnType = resultSetMetaData.getColumnType(index);
-        boolean isNullable = resultSetMetaData.isNullable(index) == 1;
-        int precision = resultSetMetaData.getPrecision(index);
-        int scale = resultSetMetaData.getScale(index);
+        SQLMetaField sqlMetaField = new SQLMetaField(
+            resultSetMetaData.getColumnName(index),
+            resultSetMetaData.getColumnType(index),
+            resultSetMetaData.isNullable(index) == 1,
+            resultSetMetaData.getPrecision(index),
+            resultSetMetaData.getScale(index),
+            resultSetMetaData.getColumnClassName(index));
 
-
-        PrimitiveType primitiveType = SqlTypeMapping.getPrimitiveType(columnName, sqlColumnType, true, precision, scale);
+        PrimitiveType primitiveType = SqlTypeMapping.getPrimitiveType(sqlMetaField);
         convertedTypes.add(primitiveType);
       }
     } catch (SQLException e) {
