@@ -1,0 +1,31 @@
+name: Publish to Maven central
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+        server-id: sonatype-nexus-staging
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+    
+    - id: install-secret-key
+      name: Install gpg secret key
+      run: cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
+
+    - id: publish-to-central
+      name: Publish to Central Repository
+      env:
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      run:  mvn -B clean deploy
