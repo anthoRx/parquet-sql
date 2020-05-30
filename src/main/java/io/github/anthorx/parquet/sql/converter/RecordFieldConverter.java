@@ -17,13 +17,11 @@ package io.github.anthorx.parquet.sql.converter;
 
 import io.github.anthorx.parquet.sql.model.RecordField;
 import io.github.anthorx.parquet.sql.model.SQLField;
-import oracle.sql.TIMESTAMP;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
@@ -38,7 +36,6 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
   private HashMap<String, ConvertFunction> converters = new HashMap<String, ConvertFunction>() {{
     put("java.lang.String", RecordFieldConverter::convertString);
     put("java.sql.Timestamp", RecordFieldConverter::convertTimestamp);
-    put("oracle.sql.TIMESTAMP", RecordFieldConverter::convertOracleTimestamp);
     put("java.math.BigDecimal", RecordFieldConverter::convertBigDecimal);
     put("java.lang.Double", RecordFieldConverter::convertDouble);
   }};
@@ -52,15 +49,6 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
     }
     Binary binaryString = Binary.fromString(value);
     return new RecordField<>(sqlField.getName(), binaryString, RecordConsumer::addBinary);
-  }
-
-  private static RecordField<Long> convertOracleTimestamp(SQLField sqlField) throws ConvertException {
-    TIMESTAMP timestamp = (TIMESTAMP) sqlField.getValue();
-    try {
-      return new RecordField<>(sqlField.getName(), timestamp.timestampValue().getTime(), RecordConsumer::addLong);
-    } catch (SQLException e) {
-      throw new ConvertException("impossible to convert " + sqlField.getName() + " field. Oracle timestamp can't be converted to Java timestamp", e);
-    }
   }
 
   private static RecordField<Long> convertTimestamp(SQLField sqlField) throws ConvertException {
@@ -176,17 +164,7 @@ public class RecordFieldConverter implements Converter<SQLField, RecordField<?>>
       case Types.TIMESTAMP:
       case Types.TIME_WITH_TIMEZONE:
       case Types.TIMESTAMP_WITH_TIMEZONE:
-        Timestamp timestamp;
-        if (sqlField.getValue() instanceof TIMESTAMP) {
-          try {
-            TIMESTAMP t = (TIMESTAMP) sqlField.getValue();
-            timestamp = t.timestampValue();
-          } catch (SQLException e) {
-            throw new ConvertException("impossible to convert " + sqlField.getName() + " field. Oracle timestamp can't be converted to Java timestamp", e);
-          }
-        } else {
-          timestamp = (Timestamp) sqlField.getValue();
-        }
+        Timestamp timestamp = (Timestamp) sqlField.getValue();
         return new RecordField<>(sqlField.getName(), timestamp.getTime(), RecordConsumer::addLong);
 
       case Types.BINARY:

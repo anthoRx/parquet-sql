@@ -37,7 +37,6 @@ public class RecordFieldConverterTest {
   SQLField bigDecimal = new SQLField("bigDecimal", new java.math.BigDecimal("49342"), 2, 20, 0, "java.math.BigDecimal");
   SQLField nullBigDecimal = new SQLField("nullBigDecimal", null, 2, 0, -127, "java.math.BigDecimal");
   SQLField timestamp = new SQLField("timestamp", Timestamp.valueOf(defaultTimestampString), 93, 0, 0, "java.sql.Timestamp");
-  SQLField oracleTimestamp = new SQLField("oracleTimestamp", new oracle.sql.TIMESTAMP(defaultTimestampString), 93, 0, 6, "oracle.sql.TIMESTAMP");
   SQLField nullTimestamp = new SQLField("nullTimestamp", null, 93, 0, 0, "java.sql.Timestamp");
   SQLField string = new SQLField("string", "string", 12, 20, 0, "java.lang.String");
   SQLField nullString = new SQLField("nullString", null, 12, 20, 0, "java.lang.String");
@@ -68,12 +67,6 @@ public class RecordFieldConverterTest {
     assertEquals(Timestamp.valueOf(defaultTimestampString).getTime(), result.getValue());
   }
 
-  @Test
-  public void testConvert_oracleTimestamp() throws ConvertException {
-    RecordField<Long> result = (RecordField<Long>) recordFieldConverter.convert(oracleTimestamp);
-    assertThat(result.getValue(), instanceOf(Long.class));
-    assertEquals(Timestamp.valueOf(defaultTimestampString).getTime(), result.getValue());
-  }
 
   @Test
   public void testConvert_double() throws ConvertException {
