@@ -15,24 +15,34 @@
 
 package io.github.anthorx.parquet.sql.write;
 
+import io.github.anthorx.parquet.sql.converter.ConvertException;
+import io.github.anthorx.parquet.sql.converter.ConverterContainer;
+import io.github.anthorx.parquet.sql.converter.RecordsConverter;
 import io.github.anthorx.parquet.sql.model.Row;
+import io.github.anthorx.parquet.sql.record.Records;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 public class SQLWriteSupport extends WriteSupport<Row> {
+  private static final Logger LOG = LoggerFactory.getLogger(SQLWriteSupport.class);
 
   private final MessageType messageType;
 
   private RecordConsumer recordConsumer;
 
-  public SQLWriteSupport(MessageType messageType) {
+  private final ConverterContainer converterContainer;
+
+  public SQLWriteSupport(MessageType messageType, ConverterContainer converterContainer) {
     this.messageType = messageType;
+    this.converterContainer = converterContainer;
   }
 
   @Override
@@ -48,19 +58,24 @@ public class SQLWriteSupport extends WriteSupport<Row> {
 
   @Override
   public void write(Row row) {
-    recordConsumer.startMessage();
-    writeRow(row);
-    recordConsumer.endMessage();
+    try {
+      Records records = new RecordsConverter(converterContainer).convert(row);
+      recordConsumer.startMessage();
+      writeRecords(records);
+      recordConsumer.endMessage();
+    } catch (ConvertException e) {
+      LOG.error("Can't convert "+row+" to Records. Row not written to the parquet file", e);
+    }
   }
 
-  private void writeRow(Row row) {
+  private void writeRecords(Records records) {
     IntStream
-        .range(0, row.getFields().size())
+        .range(0, records.getFields().size())
         .forEach(index -> {
-          if (row.getField(index).isNotNull()) {
-            recordConsumer.startField(row.getField(index).getName(), index);
-            row.getField(index).apply(recordConsumer);
-            recordConsumer.endField(row.getField(index).getName(), index);
+          if (records.getField(index).isNotNull()) {
+            recordConsumer.startField(records.getField(index).getName(), index);
+            records.getField(index).apply(recordConsumer);
+            recordConsumer.endField(records.getField(index).getName(), index);
           }
         });
   }

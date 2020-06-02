@@ -13,7 +13,7 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.record;
 
 import org.apache.parquet.io.api.RecordConsumer;
 

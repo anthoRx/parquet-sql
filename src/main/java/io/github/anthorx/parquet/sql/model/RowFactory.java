@@ -15,7 +15,6 @@
 
 package io.github.anthorx.parquet.sql.model;
 
-import io.github.anthorx.parquet.sql.converter.RecordFieldConverter;
 import io.github.anthorx.parquet.sql.converter.ConvertException;
 
 import java.sql.ResultSet;
@@ -35,8 +34,8 @@ public class RowFactory {
           rs.getMetaData().getPrecision(index),
           rs.getMetaData().getScale(index),
           rs.getMetaData().getColumnClassName(index));
-      RecordField<?> field = new RecordFieldConverter().convert(sqlField);
-      row.addField(field);
+
+      row.addField(sqlField);
     }
 
     return row;

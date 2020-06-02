@@ -15,6 +15,8 @@
 
 package io.github.anthorx.parquet.sql.converter;
 
+import io.github.anthorx.parquet.sql.converter.ConvertException;
+
 public interface Converter<T, U> {
 
   U convert(T t) throws ConvertException;

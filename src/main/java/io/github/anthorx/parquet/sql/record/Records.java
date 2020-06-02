@@ -13,35 +13,34 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.model;
+package io.github.anthorx.parquet.sql.record;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Row {
+public class Records {
 
-    List<SQLField> fields = new ArrayList<>();
+  List<RecordField<?>> fields = new ArrayList<>();
 
-    public Row() {
-    }
+  public Records() {}
 
-    public <T> void addField(SQLField field) {
-        fields.add(field);
-    }
+  public <T> void addField(RecordField<T> field) {
+    fields.add(field);
+  }
 
-    public List<SQLField> getFields() {
-        return fields;
-    }
+  public List<RecordField<?>> getFields() {
+    return fields;
+  }
 
 
-    public SQLField getField(int index) {
-        return fields.get(index);
-    }
+  public RecordField<?> getField(int index) {
+    return fields.get(index);
+  }
 
-    @Override
-    public String toString() {
-        return "Row{" +
-                "fields=" + fields +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "Records{" +
+            "fields=" + fields +
+            '}';
+  }
 }

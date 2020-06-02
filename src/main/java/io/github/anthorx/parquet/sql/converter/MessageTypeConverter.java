@@ -15,6 +15,7 @@
 
 package io.github.anthorx.parquet.sql.converter;
 
+import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
@@ -24,12 +25,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MessageTypeConverter implements Converter<ResultSetMetaData, MessageType> {
   private final String schemaName;
+  private final ConverterContainer converterContainer;
 
-  public MessageTypeConverter(String schemaName) {
+  public MessageTypeConverter(String schemaName, ConverterContainer converterContainer) {
     this.schemaName = schemaName;
+    this.converterContainer = converterContainer;
   }
 
   public MessageType convert(ResultSetMetaData resultSetMetaData) throws ConvertException {
@@ -47,10 +51,12 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
             resultSetMetaData.getScale(index),
             resultSetMetaData.getColumnClassName(index));
 
-        PrimitiveType primitiveType = SqlTypeMapping.getPrimitiveType(sqlColumnDefinition);
+        Optional<ParquetSQLConverter> c = converterContainer
+                .getFirstConverter(sqlColumnDefinition.getColumnTypeName());
+        PrimitiveType primitiveType = c.orElseThrow(ConvertException::new).convert(sqlColumnDefinition);
         convertedTypes.add(primitiveType);
       }
-    } catch (SQLException e) {
+    } catch (SQLException | ClassNotFoundException e) {
       throw new ConvertException("Error when converting ResultSetMetaData to MessageType.", e);
     }
 

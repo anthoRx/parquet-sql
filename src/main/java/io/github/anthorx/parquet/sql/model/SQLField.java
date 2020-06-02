@@ -72,4 +72,16 @@ public class SQLField {
   public String getColumnClassName() {
     return columnClassName;
   }
+
+  @Override
+  public String toString() {
+    return "SQLField{" +
+            "name='" + name + '\'' +
+            ", value=" + value +
+            ", sqlType=" + sqlType +
+            ", precision=" + precision +
+            ", scale=" + scale +
+            ", columnClassName='" + columnClassName + '\'' +
+            '}';
+  }
 }
