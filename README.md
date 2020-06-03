@@ -1,5 +1,26 @@
 # parquet-sql
 
+## (Temporary) snapshot repository
+
+Since this library is not yet released, you need to tell maven to fetch it from the snapshot repository
+
+```xml
+<profiles>
+    <profile>
+        <id>allow-snapshots</id>
+        <activation><activeByDefault>true</activeByDefault></activation>
+        <repositories>
+            <repository>
+                <id>snapshots-repo</id>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases><enabled>false</enabled></releases>
+                <snapshots><enabled>true</enabled></snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>
+```
+
 ## Maven dependency
 ```xml
 <dependency>
