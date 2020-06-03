@@ -1,6 +1,15 @@
 # parquet-sql
 
-## Example
+## Maven dependency
+```xml
+<dependency>
+    <groupId>io.github.anthorx</groupId>
+    <artifactId>parquet-sql</artifactId>
+    <version>0.1-SNAPSHOT</version>
+</dependency>
+```
+
+## Usage Example
 ```java
 ResultSet resultSet = null; // To define
 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
