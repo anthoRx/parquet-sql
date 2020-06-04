@@ -15,7 +15,10 @@
 
 package io.github.anthorx.parquet.sql.write;
 
+import io.github.anthorx.parquet.sql.converter.ConvertException;
 import io.github.anthorx.parquet.sql.converter.MessageTypeConverter;
+import io.github.anthorx.parquet.sql.converter.ConverterContainer;
+import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
 import io.github.anthorx.parquet.sql.model.Row;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -24,12 +27,12 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.schema.MessageType;
-import io.github.anthorx.parquet.sql.converter.ConvertException;
 
 import java.io.IOException;
 import java.sql.ResultSetMetaData;
 
 public class SQLParquetWriter extends ParquetWriter<Row> {
+
 
   /**
    * Constructor for retrocompatibility only. Use the builder rather than this constructor.
@@ -55,10 +58,6 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
     return new SQLParquetWriter.Builder(new Path(file));
   }
 
-  private static WriteSupport<Row> writeSupport(Configuration conf, MessageType messageType) {
-    return new SQLWriteSupport(messageType);
-  }
-
   /**
    * Builder
    */
@@ -66,6 +65,7 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
 
     private ResultSetMetaData resultSetMetaData;
     private String schemaName;
+    private ConverterContainer converterContainer;
     MessageType messageType;
 
     private Builder(Path file) {
@@ -75,6 +75,12 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
     public SQLParquetWriter.Builder withSchema(String schemaName, ResultSetMetaData resultSetMetaData) {
       this.schemaName = schemaName;
       this.resultSetMetaData = resultSetMetaData;
+      this.converterContainer = new ConverterContainer();
+      return this;
+    }
+
+    public SQLParquetWriter.Builder registerConverter(ParquetSQLConverter parquetSQLConverter) {
+      converterContainer.registerConverter(parquetSQLConverter);
       return this;
     }
 
@@ -83,12 +89,12 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
     }
 
     protected WriteSupport<Row> getWriteSupport(Configuration conf) {
-      return SQLParquetWriter.writeSupport(conf, this.messageType);
+      return new SQLWriteSupport(messageType, converterContainer);
     }
 
     public ParquetWriter<Row> build() throws IOException {
       try {
-        this.messageType = new MessageTypeConverter(schemaName).convert(resultSetMetaData);
+        this.messageType = new MessageTypeConverter(schemaName, converterContainer).convert(resultSetMetaData);
       } catch (ConvertException e) {
         throw new IOException("Error when building ParquetWriter. ResultSet structure can't be converted to a parquet schema", e);
       }

@@ -17,6 +17,8 @@ package io.github.anthorx.parquet.sql.converter;
 
 public class ConvertException extends Exception {
 
+  public ConvertException() {}
+
   public ConvertException(String s) {
     super(s);
   }
