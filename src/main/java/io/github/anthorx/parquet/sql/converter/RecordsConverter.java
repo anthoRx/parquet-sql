@@ -20,10 +20,16 @@ public class RecordsConverter implements Converter<Row, Records> {
         for (SQLField sqlField : row.getFields()) {
             String columnClassName = sqlField.getColumnClassName();
             try {
-                RecordField<?> recordField = converterContainer
-                        .getFirstConverter(columnClassName)
-                        .orElseThrow(() -> new ConvertException("No converter found for class " + columnClassName))
-                        .convert(sqlField);
+                RecordField<?> recordField;
+                if (sqlField.getValue() == null) {
+                    recordField = new RecordField<>(sqlField.getName(), null, (a, b) -> {
+                    });
+                } else {
+                    recordField = converterContainer
+                            .getFirstConverter(columnClassName)
+                            .orElseThrow(() -> new ConvertException("No converter found for class " + columnClassName))
+                            .convert(sqlField);
+                }
                 records.addField(recordField);
             } catch (ClassNotFoundException e) {
                 throw new ConvertException("Impossible to convert " + sqlField + ". Class not found", e);

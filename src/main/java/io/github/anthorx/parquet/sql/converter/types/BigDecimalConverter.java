@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 public class BigDecimalConverter implements ParquetSQLConverter {
 
-    public final int DEFAULT_PRECISION = 18;
+    public final static int DEFAULT_PRECISION = 18;
 
     @Override
     public boolean accept(Class<?> c) {
