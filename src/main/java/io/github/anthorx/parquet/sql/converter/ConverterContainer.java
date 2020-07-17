@@ -23,14 +23,20 @@ public class ConverterContainer {
     }
 
     public void registerConverter(ParquetSQLConverter converter) {
-        container.add(converter);
+        container.add(0, converter);
     }
 
-    public Optional<ParquetSQLConverter> getFirstConverter(String classFullName) throws ClassNotFoundException {
-        return getFirstConverter(Class.forName(classFullName));
+    /**
+     * @return the last registered converter matching the given classFullName
+     */
+    public Optional<ParquetSQLConverter> getConverter(String classFullName) throws ClassNotFoundException {
+        return getConverter(Class.forName(classFullName));
     }
 
-    public Optional<ParquetSQLConverter> getFirstConverter(Class<?> clazz) {
+    /**
+     * @return the last registered converter matching the given clazz
+     */
+    public Optional<ParquetSQLConverter> getConverter(Class<?> clazz) {
         return container
                 .stream()
                 .filter(converter -> converter.accept(clazz))

@@ -26,7 +26,7 @@ public class RecordsConverter implements Converter<Row, Records> {
                     });
                 } else {
                     recordField = converterContainer
-                            .getFirstConverter(columnClassName)
+                            .getConverter(columnClassName)
                             .orElseThrow(() -> new ConvertException("No converter found for class " + columnClassName))
                             .convert(sqlField);
                 }
