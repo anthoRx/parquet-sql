@@ -2,16 +2,14 @@ package io.github.anthorx.parquet.sql.converter;
 
 import io.github.anthorx.parquet.sql.converter.types.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ConverterContainer {
 
-    private List<ParquetSQLConverter> container;
+    private Deque<ParquetSQLConverter> container;
 
     public ConverterContainer() {
-        container = new ArrayList<>();
+        container = new LinkedList<>();
         registerDefaultConverters();
     }
 
@@ -23,7 +21,7 @@ public class ConverterContainer {
     }
 
     public void registerConverter(ParquetSQLConverter converter) {
-        container.add(0, converter);
+        container.addFirst(converter);
     }
 
     /**
