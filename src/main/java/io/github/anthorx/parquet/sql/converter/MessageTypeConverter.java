@@ -52,7 +52,7 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
             resultSetMetaData.getColumnClassName(index));
 
         Optional<ParquetSQLConverter> c = converterContainer
-                .getFirstConverter(sqlColumnDefinition.getColumnTypeName());
+                .getConverter(sqlColumnDefinition.getColumnTypeName());
         PrimitiveType primitiveType = c.orElseThrow(ConvertException::new).convert(sqlColumnDefinition);
         convertedTypes.add(primitiveType);
       }
