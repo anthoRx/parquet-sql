@@ -9,12 +9,23 @@
     <version>0.1</version>
     <packaging>jar</packaging>
 
+    <name>Parquet SQL</name>
+    <description>A library to convert SQL ResultSet to Parquet</description>
+    <url>https://github.com/anthoRx/parquet-sql</url>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Anthony Roux</name>
+            <email>anthony.rx43@gmail.com</email>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:git:git://github.com/anthoRx/parquet-sql.git</connection>
