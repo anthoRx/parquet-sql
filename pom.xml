@@ -6,7 +6,7 @@
 
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Parquet SQL</name>
@@ -24,6 +24,10 @@
         <developer>
             <name>Anthony Roux</name>
             <email>anthony.rx43@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Nicolas Svirchevsky</name>
+            <email>n.svirchevsky@gmail.com</email>
         </developer>
     </developers>
 
