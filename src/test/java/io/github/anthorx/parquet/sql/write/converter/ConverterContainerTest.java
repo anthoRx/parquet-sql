@@ -1,6 +1,6 @@
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.write.converter;
 
-import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
+import io.github.anthorx.parquet.sql.write.converter.types.ParquetSQLConverter;
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.record.RecordField;

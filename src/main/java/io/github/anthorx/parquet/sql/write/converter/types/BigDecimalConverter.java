@@ -1,10 +1,26 @@
-package io.github.anthorx.parquet.sql.converter.types;
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import io.github.anthorx.parquet.sql.converter.ConvertException;
-import io.github.anthorx.parquet.sql.converter.PrimitiveTypeCreator;
+package io.github.anthorx.parquet.sql.write.converter.types;
+
+
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.record.RecordField;
+import io.github.anthorx.parquet.sql.write.converter.ConvertException;
+import io.github.anthorx.parquet.sql.write.converter.PrimitiveTypeCreator;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -30,13 +46,16 @@ public class BigDecimalConverter implements ParquetSQLConverter {
         BigDecimal bd = (BigDecimal) sqlField.getValue();
 
         if (checkedPrecision <= 9) {
-            return new RecordField<>(sqlField.getName(), bd.intValue(), RecordConsumer::addInteger);
+            return new RecordField<>(sqlField.getName(), bd.intValue())
+                .addWriteConsumer(RecordConsumer::addInteger);
         } else if (checkedPrecision <= 18) {
-            return new RecordField<>(sqlField.getName(), bd.longValue(), RecordConsumer::addLong);
+            return new RecordField<>(sqlField.getName(), bd.longValue())
+                .addWriteConsumer(RecordConsumer::addLong);
         } else {
             byte[] bdBytes = bd.unscaledValue().toByteArray();
             Binary binaryArray = Binary.fromReusedByteArray(bdBytes);
-            return new RecordField<>(sqlField.getName(), binaryArray, RecordConsumer::addBinary);
+            return new RecordField<>(sqlField.getName(), binaryArray)
+                .addWriteConsumer(RecordConsumer::addBinary);
         }
     }
 

@@ -13,34 +13,26 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.record;
+package io.github.anthorx.parquet.sql.read.converter;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
+import io.github.anthorx.parquet.sql.record.RecordField;
 
-public class Records {
+import java.util.function.Consumer;
 
-  List<RecordField<?>> fields = new ArrayList<>();
+/**
+ * Converter for float values.
+ * Logical Types : None
+ * Primitive types : FLOAT
+ */
+public class FieldFloatConverter extends FieldConverter<Float> {
 
-  public Records() {}
-
-  public <T> void addField(RecordField<T> field) {
-    fields.add(field);
-  }
-
-  public List<RecordField<?>> getFields() {
-    return fields;
-  }
-
-
-  public RecordField<?> getField(int index) {
-    return fields.get(index);
+  public FieldFloatConverter(Consumer<RecordField<Float>> f, String fieldName) {
+    super(f, fieldName, ReadRecordConsumer::setFloat);
   }
 
   @Override
-  public String toString() {
-    return "Records{" +
-            "fields=" + fields +
-            '}';
+  public void addFloat(float value) {
+    acceptNewReadRecordFromValue(value);
   }
 }

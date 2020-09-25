@@ -15,11 +15,11 @@
 
 package io.github.anthorx.parquet.sql.write;
 
-import io.github.anthorx.parquet.sql.converter.ConvertException;
-import io.github.anthorx.parquet.sql.converter.ConverterContainer;
-import io.github.anthorx.parquet.sql.converter.RecordsConverter;
-import io.github.anthorx.parquet.sql.model.Row;
-import io.github.anthorx.parquet.sql.record.Records;
+import io.github.anthorx.parquet.sql.write.converter.ConvertException;
+import io.github.anthorx.parquet.sql.write.converter.ConverterContainer;
+import io.github.anthorx.parquet.sql.write.converter.RecordsConverter;
+import io.github.anthorx.parquet.sql.model.SQLRow;
+import io.github.anthorx.parquet.sql.record.Record;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public class SQLWriteSupport extends WriteSupport<Row> {
+public class SQLWriteSupport extends WriteSupport<SQLRow> {
   private static final Logger LOG = LoggerFactory.getLogger(SQLWriteSupport.class);
 
   private final MessageType messageType;
@@ -57,9 +57,9 @@ public class SQLWriteSupport extends WriteSupport<Row> {
   }
 
   @Override
-  public void write(Row row) {
+  public void write(SQLRow row) {
     try {
-      Records records = new RecordsConverter(converterContainer).convert(row);
+      Record records = new RecordsConverter(converterContainer).convert(row);
       recordConsumer.startMessage();
       writeRecords(records);
       recordConsumer.endMessage();
@@ -68,13 +68,13 @@ public class SQLWriteSupport extends WriteSupport<Row> {
     }
   }
 
-  private void writeRecords(Records records) {
+  private void writeRecords(Record records) {
     IntStream
         .range(0, records.getFields().size())
         .forEach(index -> {
           if (records.getField(index).isNotNull()) {
             recordConsumer.startField(records.getField(index).getName(), index);
-            records.getField(index).apply(recordConsumer);
+            records.getField(index).applyWriteConsumer(recordConsumer);
             recordConsumer.endField(records.getField(index).getName(), index);
           }
         });

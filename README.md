@@ -32,13 +32,6 @@ Since this library is not yet released, you need to tell maven to fetch it from 
 
 ## Usage Example
 ```java
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import io.github.anthorx.parquet.sql.model.Row;
-import io.github.anthorx.parquet.sql.model.RowFactory;
-import io.github.anthorx.parquet.sql.write.SQLParquetWriter;
-import org.apache.parquet.hadoop.ParquetFileWriter;
-import org.apache.parquet.hadoop.ParquetWriter;
 
 ResultSet resultSet = null; // To define
 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();

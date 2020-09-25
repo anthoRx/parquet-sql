@@ -1,11 +1,12 @@
-package io.github.anthorx.parquet.sql.converter.types;
+package io.github.anthorx.parquet.sql.write.converter.types;
 
-import io.github.anthorx.parquet.sql.converter.ConvertException;
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.record.RecordField;
+import io.github.anthorx.parquet.sql.write.converter.ConvertException;
 import junit.framework.Assert;
 import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.junit.jupiter.api.Test;

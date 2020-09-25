@@ -1,4 +1,4 @@
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.write.converter;
 
 import junit.framework.TestCase;
 import org.apache.parquet.schema.LogicalTypeAnnotation;

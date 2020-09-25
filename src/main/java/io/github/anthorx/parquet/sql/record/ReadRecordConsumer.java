@@ -13,9 +13,34 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.record;
 
-public interface Converter<T, U> {
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
 
-  U convert(T t) throws ConvertException;
+public interface ReadRecordConsumer {
+  void setBoolean(boolean value);
+
+  void setByte(byte value);
+
+  void setShort(short value);
+
+  void setInt(int value);
+
+  void setLong(long value);
+
+  void setFloat(float value);
+
+  void setDouble(double value);
+
+  void setBigDecimal(BigDecimal value);
+
+  void setString(String value);
+
+  void setBytes(byte[] value);
+
+  void setDate(Date value);
+
+  void setTimestamp(Timestamp value);
 }

@@ -15,11 +15,11 @@
 
 package io.github.anthorx.parquet.sql.write;
 
-import io.github.anthorx.parquet.sql.converter.ConvertException;
-import io.github.anthorx.parquet.sql.converter.MessageTypeConverter;
-import io.github.anthorx.parquet.sql.converter.ConverterContainer;
-import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
-import io.github.anthorx.parquet.sql.model.Row;
+import io.github.anthorx.parquet.sql.write.converter.ConvertException;
+import io.github.anthorx.parquet.sql.write.converter.ConverterContainer;
+import io.github.anthorx.parquet.sql.write.converter.MessageTypeConverter;
+import io.github.anthorx.parquet.sql.write.converter.types.ParquetSQLConverter;
+import io.github.anthorx.parquet.sql.model.SQLRow;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.column.ParquetProperties;
@@ -31,7 +31,7 @@ import org.apache.parquet.schema.MessageType;
 import java.io.IOException;
 import java.sql.ResultSetMetaData;
 
-public class SQLParquetWriter extends ParquetWriter<Row> {
+public class SQLParquetWriter extends ParquetWriter<SQLRow> {
 
 
   /**
@@ -49,7 +49,7 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
    * @throws IOException
    */
   @Deprecated
-  SQLParquetWriter(Path file, WriteSupport<Row> writeSupport, CompressionCodecName compressionCodecName, int blockSize, int pageSize, boolean enableDictionary, boolean enableValidation, ParquetProperties.WriterVersion writerVersion, Configuration conf) throws IOException {
+  SQLParquetWriter(Path file, WriteSupport<SQLRow> writeSupport, CompressionCodecName compressionCodecName, int blockSize, int pageSize, boolean enableDictionary, boolean enableValidation, ParquetProperties.WriterVersion writerVersion, Configuration conf) throws IOException {
     super(file, writeSupport, compressionCodecName, blockSize, pageSize, pageSize, enableDictionary, enableValidation, writerVersion, conf);
   }
 
@@ -61,7 +61,7 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
   /**
    * Builder
    */
-  public static class Builder extends org.apache.parquet.hadoop.ParquetWriter.Builder<Row, SQLParquetWriter.Builder> {
+  public static class Builder extends ParquetWriter.Builder<SQLRow, SQLParquetWriter.Builder> {
 
     private ResultSetMetaData resultSetMetaData;
     private String schemaName;
@@ -88,11 +88,11 @@ public class SQLParquetWriter extends ParquetWriter<Row> {
       return this;
     }
 
-    protected WriteSupport<Row> getWriteSupport(Configuration conf) {
+    protected WriteSupport<SQLRow> getWriteSupport(Configuration conf) {
       return new SQLWriteSupport(messageType, converterContainer);
     }
 
-    public ParquetWriter<Row> build() throws IOException {
+    public ParquetWriter<SQLRow> build() throws IOException {
       try {
         this.messageType = new MessageTypeConverter(schemaName, converterContainer).convert(resultSetMetaData);
       } catch (ConvertException e) {

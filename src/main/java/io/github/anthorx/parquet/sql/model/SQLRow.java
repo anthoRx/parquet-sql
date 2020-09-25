@@ -18,15 +18,19 @@ package io.github.anthorx.parquet.sql.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Row {
+public class SQLRow {
 
     List<SQLField> fields = new ArrayList<>();
 
-    public Row() {
+    public SQLRow() {
     }
 
     public <T> void addField(SQLField field) {
         fields.add(field);
+    }
+
+    public <T> void addField(String name, Object value) {
+        fields.add(new SQLField(name, value));
     }
 
     public List<SQLField> getFields() {
