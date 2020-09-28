@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.stream.IntStream;
 
+import static junit.framework.Assert.*;
 import static junit.framework.Assert.fail;
 
 public class BigDecimalConverterTest {
@@ -28,8 +29,8 @@ public class BigDecimalConverterTest {
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
                 RecordField<?> record = converter.convert(field);
 
-                Assert.assertTrue(record.getValue() instanceof Long);
-                Assert.assertEquals(name, record.getName());
+                assertTrue(record.getValue() instanceof Long);
+                assertEquals(name, record.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -46,8 +47,8 @@ public class BigDecimalConverterTest {
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
                 RecordField<?> record = converter.convert(field);
 
-                Assert.assertTrue(record.getValue() instanceof Integer);
-                Assert.assertEquals(name, record.getName());
+                assertTrue(record.getValue() instanceof Integer);
+                assertEquals(name, record.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -64,8 +65,8 @@ public class BigDecimalConverterTest {
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
                 RecordField<?> record = converter.convert(field);
 
-                Assert.assertTrue(record.getValue() instanceof Long);
-                Assert.assertEquals(name, record.getName());
+                assertTrue(record.getValue() instanceof Long);
+                assertEquals(name, record.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -82,8 +83,8 @@ public class BigDecimalConverterTest {
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
                 RecordField<?> record = converter.convert(field);
 
-                Assert.assertTrue(record.getValue() instanceof Binary);
-                Assert.assertEquals(name, record.getName());
+                assertTrue(record.getValue() instanceof Binary);
+                assertEquals(name, record.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -102,9 +103,9 @@ public class BigDecimalConverterTest {
                         new SQLColumnDefinition(name, 1, true, precision, scale, "java.math.BigDecimal");
                 PrimitiveType primitiveType = converter.convert(column);
 
-                Assert.assertEquals(PrimitiveType.PrimitiveTypeName.INT64, primitiveType.getPrimitiveTypeName());
-                Assert.assertEquals(LogicalTypeAnnotation.decimalType(scale, BigDecimalConverter.DEFAULT_PRECISION), primitiveType.getLogicalTypeAnnotation());
-                Assert.assertEquals(name, primitiveType.getName());
+                assertEquals(PrimitiveType.PrimitiveTypeName.INT64, primitiveType.getPrimitiveTypeName());
+                assertEquals(LogicalTypeAnnotation.decimalType(scale, BigDecimalConverter.DEFAULT_PRECISION), primitiveType.getLogicalTypeAnnotation());
+                assertEquals(name, primitiveType.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -123,9 +124,9 @@ public class BigDecimalConverterTest {
                         new SQLColumnDefinition(name, 1, true, precision, scale, "java.math.BigDecimal");
                 PrimitiveType primitiveType = converter.convert(column);
 
-                Assert.assertEquals(PrimitiveType.PrimitiveTypeName.INT32, primitiveType.getPrimitiveTypeName());
-                Assert.assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
-                Assert.assertEquals(name, primitiveType.getName());
+                assertEquals(PrimitiveType.PrimitiveTypeName.INT32, primitiveType.getPrimitiveTypeName());
+                assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
+                assertEquals(name, primitiveType.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -144,9 +145,9 @@ public class BigDecimalConverterTest {
                         new SQLColumnDefinition(name, 1, true, precision, scale, "java.math.BigDecimal");
                 PrimitiveType primitiveType = converter.convert(column);
 
-                Assert.assertEquals(PrimitiveType.PrimitiveTypeName.INT64, primitiveType.getPrimitiveTypeName());
-                Assert.assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
-                Assert.assertEquals(name, primitiveType.getName());
+                assertEquals(PrimitiveType.PrimitiveTypeName.INT64, primitiveType.getPrimitiveTypeName());
+                assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
+                assertEquals(name, primitiveType.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }
@@ -166,9 +167,9 @@ public class BigDecimalConverterTest {
                         new SQLColumnDefinition(name, 1, true, precision, scale, "java.math.BigDecimal");
                 PrimitiveType primitiveType = converter.convert(column);
 
-                Assert.assertEquals(PrimitiveType.PrimitiveTypeName.BINARY, primitiveType.getPrimitiveTypeName());
-                Assert.assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
-                Assert.assertEquals(name, primitiveType.getName());
+                assertEquals(PrimitiveType.PrimitiveTypeName.BINARY, primitiveType.getPrimitiveTypeName());
+                assertEquals(LogicalTypeAnnotation.decimalType(scale, precision), primitiveType.getLogicalTypeAnnotation());
+                assertEquals(name, primitiveType.getName());
             } catch (ConvertException e) {
                 fail("Exception thrown. " + e.getMessage());
             }

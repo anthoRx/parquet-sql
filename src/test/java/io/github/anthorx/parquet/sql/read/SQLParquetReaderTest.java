@@ -17,7 +17,6 @@ package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import junit.framework.Assert;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
@@ -31,6 +30,9 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 public class SQLParquetReaderTest {
 
@@ -63,15 +65,15 @@ public class SQLParquetReaderTest {
   private <T> void assertField(String fieldName, Record record, T expectedValue) {
     Optional<RecordField<?>> field = record.getField(fieldName);
 
-    Assert.assertTrue(field.isPresent());
+    assertTrue(field.isPresent());
 
     if (expectedValue instanceof Date) {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
       String expected = df.format((Date) expectedValue);
       String actual = df.format((Date) field.get().getValue());
-      Assert.assertEquals(expected, actual);
+      assertEquals(expected, actual);
     } else {
-      Assert.assertEquals(expectedValue, field.get().getValue());
+      assertEquals(expectedValue, field.get().getValue());
     }
   }
 }

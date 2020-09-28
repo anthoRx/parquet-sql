@@ -22,6 +22,7 @@ import org.apache.parquet.io.api.Binary;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Timestamp;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 
 /**
@@ -62,7 +63,8 @@ public class FieldTimestampConverter extends FieldConverter<Timestamp> {
     int julianDay = buf.getInt();
 
     long rawTimeInMillis = julianDayToMilliSeconds(julianDay) + timeOfDayNanos / NANOS_PER_MILLIS;
-    acceptNewReadRecordFromValue(new Timestamp(rawTimeInMillis));
+    long offset = TimeZone.getDefault().getOffset(rawTimeInMillis);
+    acceptNewReadRecordFromValue(new Timestamp(rawTimeInMillis - offset));
   }
 
   private long julianDayToMilliSeconds(long day) {

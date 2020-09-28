@@ -22,6 +22,7 @@ import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Types;
 import org.junit.jupiter.api.Test;
 
+import static junit.framework.Assert.*;
 import static org.apache.parquet.schema.LogicalTypeAnnotation.*;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.OPTIONAL;
@@ -38,10 +39,10 @@ public class SQLGroupConverterTest {
         new PrimitiveType(OPTIONAL, INT96, "d"));
 
     SQLGroupConverter groupConverter = new SQLGroupConverter(mt);
-    Assert.assertTrue(groupConverter.getConverter(0) instanceof FieldDoubleConverter);
-    Assert.assertTrue(groupConverter.getConverter(1) instanceof FieldFloatConverter);
-    Assert.assertTrue(groupConverter.getConverter(2) instanceof FieldBooleanConverter);
-    Assert.assertTrue(groupConverter.getConverter(3) instanceof FieldTimestampConverter);
+    assertTrue(groupConverter.getConverter(0) instanceof FieldDoubleConverter);
+    assertTrue(groupConverter.getConverter(1) instanceof FieldFloatConverter);
+    assertTrue(groupConverter.getConverter(2) instanceof FieldBooleanConverter);
+    assertTrue(groupConverter.getConverter(3) instanceof FieldTimestampConverter);
   }
 
   @Test
@@ -50,7 +51,7 @@ public class SQLGroupConverterTest {
         .addField(Types.optional(BINARY).as(stringType()).named("a"))
         .named("test");
 
-    Assert.assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldStringConverter);
+    assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldStringConverter);
   }
 
   @Test
@@ -59,7 +60,7 @@ public class SQLGroupConverterTest {
         .addField(Types.optional(INT64).as(timestampType(true, TimeUnit.MILLIS)).named("a"))
         .named("test");
 
-    Assert.assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldTimestampConverter);
+    assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldTimestampConverter);
   }
 
   @Test
@@ -68,7 +69,7 @@ public class SQLGroupConverterTest {
         .addField(Types.optional(INT32).as(dateType()).named("a"))
         .named("test");
 
-    Assert.assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldDateConverter);
+    assertTrue(new SQLGroupConverter(mt).getConverter(0) instanceof FieldDateConverter);
   }
 
   @Test
@@ -90,12 +91,12 @@ public class SQLGroupConverterTest {
 
     SQLGroupConverter gc = new SQLGroupConverter(mtInt);
     for (int i = 0; i < 6; i++) {
-      Assert.assertTrue(gc.getConverter(i) instanceof FieldIntegerConverter);
+      assertTrue(gc.getConverter(i) instanceof FieldIntegerConverter);
     }
 
     gc = new SQLGroupConverter(mtLong);
     for (int i = 0; i < 2; i++) {
-      Assert.assertTrue(gc.getConverter(i) instanceof FieldLongConverter);
+      assertTrue(gc.getConverter(i) instanceof FieldLongConverter);
     }
   }
 
@@ -111,7 +112,7 @@ public class SQLGroupConverterTest {
     SQLGroupConverter groupConverter = new SQLGroupConverter(mt);
 
     for (int i = 0; i < 4; i++) {
-      Assert.assertTrue(groupConverter.getConverter(i) instanceof FieldDecimalConverter);
+      assertTrue(groupConverter.getConverter(i) instanceof FieldDecimalConverter);
     }
   }
 
