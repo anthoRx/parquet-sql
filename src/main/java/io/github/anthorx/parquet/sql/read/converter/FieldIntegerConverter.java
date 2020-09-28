@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 /**
  * Converter for int values.
- * Logical Types : Signed and unsigned integer with bit width < 64
+ * Logical Types : Signed and unsigned integer with bit width less than 64
  * Primitive types : INT32
  */
 public class FieldIntegerConverter extends FieldConverter<Integer> {

@@ -55,13 +55,18 @@ public class ConverterContainer {
     }
 
     /**
+     * Get a converter from a full class name.
+     * @param classFullName Class full name to get the converter from.
      * @return the last registered converter matching the given classFullName
+     * @throws ClassNotFoundException If class cannot be found
      */
     public Optional<ParquetSQLConverter> getConverter(String classFullName) throws ClassNotFoundException {
         return getConverter(Class.forName(classFullName));
     }
 
     /**
+     * Get a converter for a given class.
+     * @param clazz Class to get the converter from.
      * @return the last registered converter matching the given clazz
      */
     public Optional<ParquetSQLConverter> getConverter(Class<?> clazz) {
