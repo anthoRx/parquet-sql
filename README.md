@@ -1,25 +1,5 @@
 # parquet-sql
 
-## (Temporary) snapshot repository
-
-Since this library is not yet released, you need to tell maven to fetch it from the snapshot repository
-
-```xml
-<profiles>
-    <profile>
-        <id>allow-snapshots</id>
-        <activation><activeByDefault>true</activeByDefault></activation>
-        <repositories>
-            <repository>
-                <id>snapshots-repo</id>
-                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                <releases><enabled>false</enabled></releases>
-                <snapshots><enabled>true</enabled></snapshots>
-            </repository>
-        </repositories>
-    </profile>
-</profiles>
-```
 
 ## Maven dependency
 ```xml
@@ -30,19 +10,41 @@ Since this library is not yet released, you need to tell maven to fetch it from 
 </dependency>
 ```
 
-## Usage Example
+## How to serialize a ResultSet in a Parquet file 
 ```java
+    ResultSet resultSet = /* statement */;
+    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+    
+    ParquetWriter<SQLRow> parquetWriter = SQLParquetWriter
+            .builder("FileName")
+            .withSchema("schemaName", resultSetMetaData)
+            .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+            .build();
+    
+    while (resultSet.next()) {
+        SQLRow row = SQLRowFactory.createSQLRow(rs);
+        parquetWriter.write(row);
+    }
 
-ResultSet resultSet = null; // To define
-ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-ParquetWriter<Row> parquetWriter = SQLParquetWriter.builder("FileName")
-        .withSchema("schemaName", resultSetMetaData)
-        .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+    parquetWriter.close();
+```
+
+# How to read a Parquet file to insert in a SQL database
+```java
+    ParquetReader<Record> parquetReader = SQLParquetReader
+        .builder(filePath)
         .build();
 
-while (resultSet.next()) {
-    Row row = RowFactory.createRow(resultSet);
-    parquetWriter.write(row);
-}
-parquetWriter.close();
+    PreparedStatement preparedStatement = con.prepareStatement(insertQuery);
+    PreparedStatementRecordConsumer psrc = new PreparedStatementRecordConsumer(preparedStatement);
+
+    Record record;
+    while ((record = parquetReader.read()) != null) {
+      record
+          .getFields()
+          .forEach( f -> f.applyReadConsumer(psrc));
+      psrc.addBatch();
+    }
+
+    preparedStatement.executeBatch();
 ```

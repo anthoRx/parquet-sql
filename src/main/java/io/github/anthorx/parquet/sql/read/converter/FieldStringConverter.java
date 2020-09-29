@@ -36,29 +36,4 @@ public class FieldStringConverter extends FieldConverter<String> {
   final public void addBinary(Binary value) {
     acceptNewReadRecordFromValue(value.toStringUsingUTF8());
   }
-
-  @Override
-  public void addLong(long value) {
-    acceptNewReadRecordFromValue(Long.toString(value));
-  }
-
-  @Override
-  public void addInt(int value) {
-    acceptNewReadRecordFromValue(Integer.toString(value));
-  }
-
-  @Override
-  public void addFloat(float value) {
-    acceptNewReadRecordFromValue(Float.toString(value));
-  }
-
-  @Override
-  public void addDouble(double value) {
-    acceptNewReadRecordFromValue(Double.toString(value));
-  }
-
-  @Override
-  public void addBoolean(boolean value) {
-    acceptNewReadRecordFromValue(Boolean.toString(value));
-  }
 }

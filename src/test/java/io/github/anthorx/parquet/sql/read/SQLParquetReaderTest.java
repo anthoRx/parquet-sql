@@ -39,10 +39,9 @@ public class SQLParquetReaderTest {
   @Test
   public void convertParquetFileWithMultipleTypes() throws IOException {
     String filePath = getClass().getResource("/test.parquet").getPath();
-    InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
 
     ParquetReader<Record> parquetReader = SQLParquetReader
-        .builder(inputFile)
+        .builder(filePath)
         .build();
 
     Record record = parquetReader.read();

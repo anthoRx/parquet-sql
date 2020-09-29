@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 
 public class SQLGroupConverter extends GroupConverter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SQLWriteSupport.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SQLGroupConverter.class);
 
   private Record currentSQLRowRead;
   private final Converter[] converters;
@@ -63,13 +63,13 @@ public class SQLGroupConverter extends GroupConverter {
 
   @Override
   public void start() {
-    LOG.info("Start converting a new row with " + this.getClass().getSimpleName());
+    LOG.debug("Start converting a new row with " + this.getClass().getSimpleName());
     currentSQLRowRead = new Record();
   }
 
   @Override
   public void end() {
-    LOG.info("End converting a row with " + this.getClass().getSimpleName());
+    LOG.debug("End converting a row with " + this.getClass().getSimpleName());
   }
 
   /**

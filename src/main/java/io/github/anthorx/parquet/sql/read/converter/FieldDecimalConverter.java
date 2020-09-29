@@ -22,7 +22,6 @@ import org.apache.parquet.schema.PrimitiveType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 /**
@@ -41,14 +40,8 @@ public class FieldDecimalConverter extends FieldConverter<BigDecimal> {
 
   @Override
   public void addBinary(Binary value) {
-    acceptNewReadRecordFromValue(fromBytes(value.toByteBuffer(), this.scale));
-  }
-
-  public BigDecimal fromBytes(ByteBuffer value, int scale) {
-    // always copy the bytes out because BigInteger has no offset/length ctor
-    byte[] bytes = new byte[value.remaining()];
-    value.get(bytes);
-    return new BigDecimal(new BigInteger(bytes), scale);
+    BigDecimal bd = new BigDecimal(new BigInteger(value.getBytes()), scale);
+    acceptNewReadRecordFromValue(bd);
   }
 
   @Override

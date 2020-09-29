@@ -2,12 +2,17 @@ package io.github.anthorx.parquet.sql.write.converter;
 
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.model.SQLRow;
-import io.github.anthorx.parquet.sql.record.RecordField;
 import io.github.anthorx.parquet.sql.record.Record;
+import io.github.anthorx.parquet.sql.record.RecordField;
+import org.apache.parquet.io.api.RecordConsumer;
+
+import java.util.function.BiConsumer;
 
 public class RecordsConverter implements Converter<SQLRow, Record> {
 
   private ConverterContainer converterContainer;
+
+  private final BiConsumer<RecordConsumer, Object> NO_OP_CONSUMER = (a, b) -> {};
 
   public RecordsConverter(ConverterContainer converterContainer) {
     this.converterContainer = converterContainer;
@@ -23,7 +28,7 @@ public class RecordsConverter implements Converter<SQLRow, Record> {
         RecordField<?> recordField;
         if (sqlField.getValue() == null) {
           recordField = new RecordField<>(sqlField.getName(), null)
-              .addWriteConsumer((a, b) -> {});
+              .addWriteConsumer(NO_OP_CONSUMER);
         } else {
           recordField = converterContainer
               .getConverter(columnClassName)

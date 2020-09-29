@@ -16,24 +16,26 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.Record;
+import io.github.anthorx.parquet.sql.write.SQLParquetWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
+import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
 
 import java.io.IOException;
 
 public class SQLParquetReader extends ParquetReader<Record> {
 
-
   @Deprecated
   public SQLParquetReader(Configuration conf, Path file, ReadSupport<Record> readSupport) throws IOException {
     super(conf, file, readSupport);
   }
 
-  public static SQLParquetReader.Builder builder(InputFile file) {
-    return new SQLParquetReader.Builder(file);
+  public static SQLParquetReader.Builder builder(String filePath) throws IOException {
+    InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
+    return new SQLParquetReader.Builder(inputFile);
   }
 
   public static class Builder extends ParquetReader.Builder<Record> {

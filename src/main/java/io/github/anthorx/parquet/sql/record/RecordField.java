@@ -54,11 +54,15 @@ public class RecordField<T> {
   }
 
   public void applyWriteConsumer(RecordConsumer r) {
-    writeConsumer.accept(r, value);
+    if (writeConsumer != null) {
+      writeConsumer.accept(r, value);
+    }
   }
 
   public void applyReadConsumer(ReadRecordConsumer r) {
-    readConsumer.accept(r, value);
+    if (readConsumer != null) {
+      readConsumer.accept(r, value);
+    }
   }
 
   public boolean isNotNull() {

@@ -32,12 +32,7 @@ public class SQLField {
   final private String columnClassName;
 
   public SQLField(String name, Object value) {
-    this.name = name;
-    this.value = value;
-    this.sqlType = -1;
-    this.precision = Optional.empty();
-    this.scale = Optional.empty();
-    this.columnClassName = "";
+    this(name, value, -1, "");
   }
 
   public SQLField(String name, Object value, int sqlType, String columnClassName) {
