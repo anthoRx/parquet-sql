@@ -1,16 +1,19 @@
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.write.converter;
 
-import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import junit.framework.TestCase;
+import io.github.anthorx.parquet.sql.write.converter.types.ParquetSQLConverter;
 import org.apache.parquet.schema.PrimitiveType;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class ConverterContainerTest extends TestCase {
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+
+public class ConverterContainerTest {
 
   ConverterContainer converterContainer = new ConverterContainer();
 
@@ -32,6 +35,7 @@ public class ConverterContainerTest extends TestCase {
     }
   }
 
+  @Test
   public void testGetConverterReturnsTheUserDefinedInsteadOfDefault() {
     CustomBigDecimalConverter expectedConverter = new CustomBigDecimalConverter();
     converterContainer.registerConverter(expectedConverter);

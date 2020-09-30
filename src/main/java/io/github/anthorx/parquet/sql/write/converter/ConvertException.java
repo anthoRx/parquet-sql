@@ -13,7 +13,7 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.write.converter;
 
 public class ConvertException extends Exception {
 

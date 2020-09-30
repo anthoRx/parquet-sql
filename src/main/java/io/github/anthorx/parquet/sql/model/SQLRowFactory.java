@@ -15,16 +15,16 @@
 
 package io.github.anthorx.parquet.sql.model;
 
-import io.github.anthorx.parquet.sql.converter.ConvertException;
+import io.github.anthorx.parquet.sql.write.converter.ConvertException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RowFactory {
+public class SQLRowFactory {
 
-  public static Row createRow(ResultSet rs) throws SQLException, ConvertException {
+  public static SQLRow createSQLRow(ResultSet rs) throws SQLException, ConvertException {
     int nbColumns = rs.getMetaData().getColumnCount();
-    Row row = new Row();
+    SQLRow row = new SQLRow();
 
     for (int index = 1; index <= nbColumns; index++) {
       SQLField sqlField = new SQLField(

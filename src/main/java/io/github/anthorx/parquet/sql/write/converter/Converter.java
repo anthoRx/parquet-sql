@@ -13,34 +13,9 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.record;
+package io.github.anthorx.parquet.sql.write.converter;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface Converter<T, U> {
 
-public class Records {
-
-  List<RecordField<?>> fields = new ArrayList<>();
-
-  public Records() {}
-
-  public <T> void addField(RecordField<T> field) {
-    fields.add(field);
-  }
-
-  public List<RecordField<?>> getFields() {
-    return fields;
-  }
-
-
-  public RecordField<?> getField(int index) {
-    return fields.get(index);
-  }
-
-  @Override
-  public String toString() {
-    return "Records{" +
-            "fields=" + fields +
-            '}';
-  }
+  U convert(T t) throws ConvertException;
 }

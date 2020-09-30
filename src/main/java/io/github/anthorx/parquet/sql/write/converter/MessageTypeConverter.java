@@ -13,10 +13,10 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.converter;
+package io.github.anthorx.parquet.sql.write.converter;
 
-import io.github.anthorx.parquet.sql.converter.types.ParquetSQLConverter;
 import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
+import io.github.anthorx.parquet.sql.write.converter.types.ParquetSQLConverter;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
@@ -52,8 +52,8 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
             resultSetMetaData.getColumnClassName(index));
 
         Optional<ParquetSQLConverter> c = converterContainer
-                .getConverter(sqlColumnDefinition.getColumnTypeName());
-        PrimitiveType primitiveType = c.orElseThrow(ConvertException::new).convert(sqlColumnDefinition);
+            .getConverter(sqlColumnDefinition.getColumnTypeName());
+        PrimitiveType primitiveType = c.orElseThrow(() -> new ConvertException("Can't found a converter for column " + sqlColumnDefinition.getName() + " of type " + sqlColumnDefinition.getColumnTypeName())).convert(sqlColumnDefinition);
         convertedTypes.add(primitiveType);
       }
     } catch (SQLException | ClassNotFoundException e) {

@@ -24,12 +24,15 @@ public class RecordField<T> {
 
   private final T value;
 
-  private final BiConsumer<RecordConsumer, T> f;
+  // Function used to write the field somewhere
+  private BiConsumer<RecordConsumer, T> writeConsumer;
 
-  public RecordField(String name, T value, BiConsumer<RecordConsumer, T> f) {
+  // Function used to read the field from a parquet file
+  private BiConsumer<ReadRecordConsumer, T> readConsumer;
+
+  public RecordField(String name, T value) {
     this.name = name;
     this.value = value;
-    this.f = f;
   }
 
   public String getName() {
@@ -40,11 +43,37 @@ public class RecordField<T> {
     return value;
   }
 
-  public void apply(RecordConsumer r) {
-    f.accept(r, value);
+  public RecordField<T> addWriteConsumer(BiConsumer<RecordConsumer, T> writeConsumer) {
+    this.writeConsumer = writeConsumer;
+    return this;
+  }
+
+  public RecordField<T> addReadConsumer(BiConsumer<ReadRecordConsumer, T> readConsumer) {
+    this.readConsumer = readConsumer;
+    return this;
+  }
+
+  public void applyWriteConsumer(RecordConsumer r) {
+    if (writeConsumer != null) {
+      writeConsumer.accept(r, value);
+    }
+  }
+
+  public void applyReadConsumer(ReadRecordConsumer r) {
+    if (readConsumer != null) {
+      readConsumer.accept(r, value);
+    }
   }
 
   public boolean isNotNull() {
     return value != null;
+  }
+
+  @Override
+  public String toString() {
+    return "RecordField{" +
+        "name='" + name + '\'' +
+        ", value=" + value +
+        '}';
   }
 }

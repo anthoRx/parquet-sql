@@ -31,6 +31,10 @@ public class SQLField {
 
   final private String columnClassName;
 
+  public SQLField(String name, Object value) {
+    this(name, value, -1, "");
+  }
+
   public SQLField(String name, Object value, int sqlType, String columnClassName) {
     this.name = name;
     this.value = value;
@@ -76,12 +80,12 @@ public class SQLField {
   @Override
   public String toString() {
     return "SQLField{" +
-            "name='" + name + '\'' +
-            ", value=" + value +
-            ", sqlType=" + sqlType +
-            ", precision=" + precision +
-            ", scale=" + scale +
-            ", columnClassName='" + columnClassName + '\'' +
-            '}';
+        "name='" + name + '\'' +
+        ", value=" + value +
+        ", sqlType=" + sqlType +
+        ", precision=" + precision +
+        ", scale=" + scale +
+        ", columnClassName='" + columnClassName + '\'' +
+        '}';
   }
 }
