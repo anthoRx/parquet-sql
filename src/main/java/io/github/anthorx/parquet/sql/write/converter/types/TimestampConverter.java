@@ -22,10 +22,6 @@ public class TimestampConverter implements ParquetSQLConverter {
   /**
    * Convert a sqlField to A RecordField.
    * Add offset from UTC because JDBC timestamp is dependant to the local timezone
-   *
-   * @param sqlField
-   * @return
-   * @throws ConvertException
    */
   @Override
   public RecordField<?> convert(SQLField sqlField) {
