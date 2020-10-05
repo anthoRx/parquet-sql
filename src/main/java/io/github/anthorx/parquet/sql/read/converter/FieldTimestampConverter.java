@@ -55,6 +55,7 @@ public class FieldTimestampConverter extends FieldConverter<Timestamp> {
   /**
    * INT96 Parquet physical format use first 8 bytes to store nanoseconds from midnight
    * and last 4 bytes to store julian days
+   * Subtract offset from UTC because Timestamp constructor will add the offset according to the local timezone.
    */
   @Override
   public void addBinary(Binary value) {
