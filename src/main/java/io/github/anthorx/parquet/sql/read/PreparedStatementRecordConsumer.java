@@ -18,17 +18,14 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
+public class PreparedStatementRecordConsumer implements ReadRecordConsumer, AutoCloseable {
 
-  private PreparedStatement preparedStatement;
-  private List<String> errors;
+  private final PreparedStatement preparedStatement;
+  private final List<String> errors;
   private int currentParameterIndex = 0;
 
   public PreparedStatementRecordConsumer(PreparedStatement preparedStatement) {
@@ -45,6 +42,10 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
       this.currentParameterIndex = 0;
       this.errors.clear();
     }
+  }
+
+  public void executeBatch() throws SQLException {
+    this.preparedStatement.executeBatch();
   }
 
   private int getNextIndex() {
@@ -162,5 +163,10 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
     } catch (SQLException e) {
       addError(e);
     }
+  }
+
+  @Override
+  public void close() throws SQLException {
+    this.preparedStatement.close();
   }
 }
