@@ -16,6 +16,7 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
+import io.github.anthorx.parquet.sql.utils.AssertionUtils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -32,6 +33,8 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   private int currentParameterIndex = 0;
 
   public PreparedStatementRecordConsumer(PreparedStatement preparedStatement) {
+    AssertionUtils.notNull(preparedStatement, "A valid PreparedStatement is required for PreparedStatementRecordConsumer.");
+
     this.preparedStatement = preparedStatement;
     this.errors = new ArrayList<>();
   }

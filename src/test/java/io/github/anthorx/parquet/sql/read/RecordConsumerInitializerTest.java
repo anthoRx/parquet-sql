@@ -9,9 +9,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RecordConsumerInitializerTest {
@@ -38,12 +43,13 @@ public class RecordConsumerInitializerTest {
 
   @Test
   public void initializeRecordConsumerFromListOfColumns() throws SQLException {
+    when(connection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
     Assert.assertNotNull(recordConsumer);
   }
 
   @Test
-  public void initializeWithListOfColumnsShouldThrowException() throws SQLException {
+  public void initializeWithListOfColumnsShouldThrowException() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       initializer.initialize(Collections.emptyList());
     });

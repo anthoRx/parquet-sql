@@ -14,6 +14,8 @@
  */
 package io.github.anthorx.parquet.sql.read;
 
+import io.github.anthorx.parquet.sql.utils.AssertionUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,14 +32,15 @@ public class RecordConsumerInitializer {
   final private String tableName;
 
   public RecordConsumerInitializer(Connection connection, String tableName) {
+    AssertionUtils.notNull(connection, "A valid connection is required for RecordConsumerInitializer.");
+    AssertionUtils.notNull(connection, "A valid table's name is required for RecordConsumerInitializer.");
+
     this.connection = connection;
     this.tableName = tableName;
   }
 
   public PreparedStatementRecordConsumer initialize(List<String> columnNames) throws SQLException, IllegalArgumentException {
-    if (columnNames.isEmpty()) {
-      throw new IllegalArgumentException("Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
-    }
+    AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
 
     String insertQuery = insertQueryBuilder(columnNames);
     PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
