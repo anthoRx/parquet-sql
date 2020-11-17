@@ -17,11 +17,9 @@ package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.ParquetReader;
-import org.apache.parquet.hadoop.util.HadoopInputFile;
-import org.apache.parquet.io.InputFile;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,22 +27,23 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SQLParquetReaderTest {
+public class SQLParquetReaderWrapperTest {
 
   @Test
   public void convertParquetFileWithMultipleTypes() throws IOException {
     String filePath = getClass().getResource("/test.parquet").getPath();
 
-    ParquetReader<Record> parquetReader = SQLParquetReader
-        .builder(filePath)
-        .build();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
 
-    Record record = parquetReader.read();
+    Record record = sqlParquetReaderWrapper.read();
 
     assertField("timestamp", record, Timestamp.valueOf("2019-02-04 00:00:00"));
     assertField("date", record, Date.valueOf("2019-01-17"));
@@ -74,5 +73,15 @@ public class SQLParquetReaderTest {
     } else {
       assertEquals(expectedValue, field.get().getValue());
     }
+  }
+
+  @Test
+  public void shouldSuccessReadSchemaSingleFile() throws IOException {
+    String filePath = getClass().getResource("/test/part-00000-ca926296-c481-49fe-bf29-9aad7345d53f-c000.snappy.parquet").getPath();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
+
+    List<String> columns = sqlParquetReaderWrapper.getColumns();
+
+    assertThat(columns, CoreMatchers.is(Arrays.asList("username", "value", "comment")));
   }
 }

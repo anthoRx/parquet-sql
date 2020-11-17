@@ -16,26 +16,53 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.Record;
-import io.github.anthorx.parquet.sql.write.SQLParquetWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class SQLParquetReader extends ParquetReader<Record> {
+public class SQLParquetReaderWrapper {
 
-  @Deprecated
-  public SQLParquetReader(Configuration conf, Path file, ReadSupport<Record> readSupport) throws IOException {
-    super(conf, file, readSupport);
+  private final ParquetReader<Record> parquetReader;
+  private final MessageType schema;
+
+  public SQLParquetReaderWrapper(String filePath) throws IOException {
+    InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
+
+    ParquetReader.Builder<Record> recordParquetReader = new SQLParquetReaderWrapper.Builder(inputFile);
+
+    this.parquetReader = recordParquetReader.build();
+    this.schema = this.initFileSchema(inputFile);
   }
 
-  public static SQLParquetReader.Builder builder(String filePath) throws IOException {
-    InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
-    return new SQLParquetReader.Builder(inputFile);
+  private MessageType initFileSchema(InputFile inputFile) throws IOException {
+    ParquetFileReader parquetFileReader = ParquetFileReader.open(inputFile);
+    return parquetFileReader.getFileMetaData().getSchema();
+  }
+
+  public MessageType getSchema() {
+    return schema;
+  }
+
+  public Record read() throws IOException {
+    return parquetReader.read();
+  }
+
+  public List<String> getColumns() {
+    return this.schema
+        .getFields()
+        .stream()
+        .map(Type::getName)
+        .collect(Collectors.toList());
   }
 
   public static class Builder extends ParquetReader.Builder<Record> {
@@ -46,6 +73,11 @@ public class SQLParquetReader extends ParquetReader<Record> {
 
     protected ReadSupport<Record> getReadSupport() {
       return new SQLReadSupport();
+    }
+
+    @Override
+    public ParquetReader<Record> build() throws IOException {
+      return super.build();
     }
   }
 }

@@ -17,34 +17,29 @@ package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
-import io.github.anthorx.parquet.sql.read.SQLParquetReader;
+import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.record.Record;
-import io.github.anthorx.parquet.sql.record.RecordField;
-import org.apache.parquet.hadoop.ParquetReader;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JDBCWriter {
 
-  final private ParquetReader<Record> parquetReader;
+  final private SQLParquetReaderWrapper parquetReaderWrapper;
   final private RecordConsumerInitializer lazyRecordConsumerInitializer;
   private int batchSize;
 
 
   public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, String filePath, int batchSize) throws IOException {
     this.lazyRecordConsumerInitializer = lazyRecordConsumerInitializer;
-    this.parquetReader = SQLParquetReader
-        .builder(filePath)
-        .build();
+    this.parquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
     this.batchSize = batchSize;
   }
 
-  public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, SQLParquetReader sqlParquetReader, int batchSize) {
+  public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, SQLParquetReaderWrapper sqlParquetReaderWrapper, int batchSize) {
     this.lazyRecordConsumerInitializer = lazyRecordConsumerInitializer;
-    this.parquetReader = sqlParquetReader;
+    this.parquetReaderWrapper = sqlParquetReaderWrapper;
     this.batchSize = batchSize;
   }
 
@@ -59,15 +54,10 @@ public class JDBCWriter {
 
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
-    Record record = parquetReader.read();
+    List<String> columnNames = parquetReaderWrapper.getColumns();
+    Record record = parquetReaderWrapper.read();
 
     if (record != null) {
-      List<String> columnNames = record
-          .getFields()
-          .stream()
-          .map(RecordField::getName)
-          .collect(Collectors.toList());
-
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(columnNames)) {
         do {
           record
@@ -81,7 +71,7 @@ public class JDBCWriter {
             recordConsumer.executeBatch();
             nbRecordInBatch = 0;
           }
-        } while ((record = parquetReader.read()) != null);
+        } while ((record = parquetReaderWrapper.read()) != null);
 
         if (nbRecordInBatch != 0) {
           recordConsumer.executeBatch();
