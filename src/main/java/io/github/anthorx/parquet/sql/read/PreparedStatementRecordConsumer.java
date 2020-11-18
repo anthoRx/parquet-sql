@@ -18,7 +18,10 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 

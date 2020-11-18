@@ -22,14 +22,10 @@ import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class JDBCWriter {
 
