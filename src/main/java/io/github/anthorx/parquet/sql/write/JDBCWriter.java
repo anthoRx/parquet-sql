@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class JDBCWriter {
 
@@ -88,15 +87,11 @@ public class JDBCWriter {
     return fieldsNames
         .stream()
         .reduce(new ArrayList<>(), (currentValues, currentFieldName) -> {
-          RecordField result = getNextField(currentFieldName, record);
+          RecordField result = record
+              .getField(currentFieldName)
+              .orElse(new RecordField<>(currentFieldName, null));
           currentValues.add(result);
           return currentValues;
         }, (before, after) -> after);
-  }
-
-  private RecordField getNextField(String currentFieldName, Record record) {
-    Optional<RecordField<?>> currentField = record.getField(currentFieldName);
-
-    return currentField.orElseGet(() -> new RecordField<>(currentFieldName, null));
   }
 }
