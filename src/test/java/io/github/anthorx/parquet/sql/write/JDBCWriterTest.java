@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -51,6 +53,7 @@ public class JDBCWriterTest {
   @BeforeEach
   public void setUp() throws SQLException {
     when(lazyRecordConsumerInitializer.initialize(anyList())).thenReturn(mockedRecordConsumer);
+    when(sqlParquetReaderWrapper.getColumns()).thenReturn(Arrays.asList("int", "string"));
   }
 
   private Record createBasicRecord() {
@@ -110,6 +113,19 @@ public class JDBCWriterTest {
   public void recordAreInsertedInBatch() throws IOException, SQLException {
     when(sqlParquetReaderWrapper.read())
         .thenReturn(createBasicRecord(), createBasicRecord(), createBasicRecord(), createBasicRecord(), null);
+
+    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
+    jdbcWriter.write();
+
+    verify(mockedRecordConsumer, times(2)).executeBatch();
+  }
+
+  @Test
+  public void shouldSuccessInsertVaryingRecordColumns() throws IOException, SQLException {
+    Record recordWithLessColumns = new Record();
+    recordWithLessColumns.addField(new RecordField<>("int", 10).addReadConsumer(ReadRecordConsumer::setInt));
+    when(sqlParquetReaderWrapper.read())
+        .thenReturn(createBasicRecord(), createBasicRecord(), recordWithLessColumns, null);
 
     JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
     jdbcWriter.write();

@@ -20,7 +20,7 @@ public class RecordConsumerInitializerTest {
   private Connection connection;
   private final String tableName = "car";
 
-  RecordConsumerInitializer initializer;
+  private RecordConsumerInitializer initializer;
 
   @BeforeEach
   public void setUp() {
