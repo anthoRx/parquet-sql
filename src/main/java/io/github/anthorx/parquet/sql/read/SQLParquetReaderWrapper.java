@@ -23,6 +23,7 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
+import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
 
@@ -34,6 +35,7 @@ public class SQLParquetReaderWrapper {
 
   private final ParquetReader<Record> parquetReader;
   private final MessageType schema;
+  private final SQLGroupConverter groupConverter;
 
   public SQLParquetReaderWrapper(String filePath) throws IOException {
     InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
@@ -42,6 +44,7 @@ public class SQLParquetReaderWrapper {
 
     this.parquetReader = recordParquetReader.build();
     this.schema = this.initFileSchema(inputFile);
+    this.groupConverter = new SQLGroupConverter(this.schema);
   }
 
   private MessageType initFileSchema(InputFile inputFile) throws IOException {
@@ -66,6 +69,15 @@ public class SQLParquetReaderWrapper {
         .stream()
         .map(Type::getName)
         .collect(Collectors.toList());
+  }
+
+  public List<Type> getFields() {
+    return this.schema
+        .getFields();
+  }
+
+  public Converter getConverterFromField(Type field) {
+    return groupConverter.getConverterFromField(field);
   }
 
   public static class Builder extends ParquetReader.Builder<Record> {

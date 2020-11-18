@@ -79,7 +79,7 @@ public class SQLGroupConverter extends GroupConverter {
    * @param parquetField
    * @return
    */
-  private Converter getConverterFromField(Type parquetField) {
+  public Converter getConverterFromField(Type parquetField) {
     LogicalTypeAnnotation logicalTypeAnnotation = parquetField.getLogicalTypeAnnotation();
     String fieldName = parquetField.getName();
     Optional<Converter> converter;

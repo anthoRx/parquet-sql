@@ -18,8 +18,11 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
+import io.github.anthorx.parquet.sql.read.converter.FieldConverter;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
+import org.apache.parquet.io.api.Converter;
+import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -57,12 +60,13 @@ public class JDBCWriter {
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
     List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
+    List<Type> fields = parquetReaderWrapper.getFields();
     Record record = parquetReaderWrapper.read();
 
     if (record != null) {
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          List<RecordField> fieldsValues = extractFieldValues(fieldsNames, record);
+          List<RecordField> fieldsValues = extractFieldValues(fields, record);
           fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
@@ -83,15 +87,27 @@ public class JDBCWriter {
     }
   }
 
-  private List<RecordField> extractFieldValues(List<String> fieldsNames, Record record) {
-    return fieldsNames
+  private List<RecordField> extractFieldValues(List<Type> fields, Record record) {
+    return fields
         .stream()
-        .reduce(new ArrayList<>(), (currentValues, currentFieldName) -> {
+        .reduce(new ArrayList<>(), (currentValues, currentField) -> {
           RecordField result = record
-              .getField(currentFieldName)
-              .orElse(new RecordField<>(currentFieldName, null));
+              .getField(currentField.getName())
+              .orElse(createNullRecordField(currentField));
           currentValues.add(result);
           return currentValues;
         }, (before, after) -> after);
+  }
+
+  private RecordField createNullRecordField(Type currentField) {
+    RecordField recordField = new RecordField<>(currentField.getName(), null);
+    Converter fieldConverter = parquetReaderWrapper.getConverterFromField(currentField);
+    if (fieldConverter instanceof FieldConverter) {
+      recordField.addReadConsumer(((FieldConverter) fieldConverter).getReadRecordConsumerFunction());
+    } else {
+      throw new IllegalArgumentException("Invalid converter found reading in createNullRecordField");
+    }
+
+    return recordField;
   }
 }
