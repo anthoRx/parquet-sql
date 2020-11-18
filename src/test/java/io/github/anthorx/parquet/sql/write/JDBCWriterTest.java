@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -53,7 +52,7 @@ public class JDBCWriterTest {
   @BeforeEach
   public void setUp() throws SQLException {
     when(lazyRecordConsumerInitializer.initialize(anyList())).thenReturn(mockedRecordConsumer);
-    when(sqlParquetReaderWrapper.getColumns()).thenReturn(Arrays.asList("int", "string"));
+    when(sqlParquetReaderWrapper.getFieldsNames()).thenReturn(Arrays.asList("int", "string"));
   }
 
   private Record createBasicRecord() {

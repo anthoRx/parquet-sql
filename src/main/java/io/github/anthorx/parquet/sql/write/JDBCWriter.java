@@ -19,10 +19,17 @@ import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.record.Record;
+import io.github.anthorx.parquet.sql.record.RecordField;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class JDBCWriter {
 
@@ -54,15 +61,14 @@ public class JDBCWriter {
 
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
-    List<String> columnNames = parquetReaderWrapper.getColumns();
+    List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
     Record record = parquetReaderWrapper.read();
 
     if (record != null) {
-      try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(columnNames)) {
+      try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          record
-              .getFields()
-              .forEach(field -> field.applyReadConsumer(recordConsumer));
+          List<RecordField> fieldsValues = extractFieldValues(fieldsNames, record);
+          fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
           ++nbRecordInBatch;
@@ -80,5 +86,21 @@ public class JDBCWriter {
         throw new SQLException("Error when writing Parquet records to the target table.", e);
       }
     }
+  }
+
+  private List<RecordField> extractFieldValues(List<String> fieldsNames, Record record) {
+    return fieldsNames
+        .stream()
+        .reduce(new ArrayList<>(), (currentValues, currentFieldName) -> {
+          RecordField result = getNextField(currentFieldName, record);
+          currentValues.add(result);
+          return currentValues;
+        }, (before, after) -> after);
+  }
+
+  private RecordField getNextField(String currentFieldName, Record record) {
+    Optional<RecordField<?>> currentField = record.getField(currentFieldName);
+
+    return currentField.orElseGet(() -> new RecordField<>(currentFieldName, null));
   }
 }

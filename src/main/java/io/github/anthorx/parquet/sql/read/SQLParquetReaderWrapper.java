@@ -46,7 +46,10 @@ public class SQLParquetReaderWrapper {
 
   private MessageType initFileSchema(InputFile inputFile) throws IOException {
     ParquetFileReader parquetFileReader = ParquetFileReader.open(inputFile);
-    return parquetFileReader.getFileMetaData().getSchema();
+    MessageType schema = parquetFileReader.getFileMetaData().getSchema();
+    parquetFileReader.close();
+
+    return schema;
   }
 
   public MessageType getSchema() {
@@ -57,7 +60,7 @@ public class SQLParquetReaderWrapper {
     return parquetReader.read();
   }
 
-  public List<String> getColumns() {
+  public List<String> getFieldsNames() {
     return this.schema
         .getFields()
         .stream()

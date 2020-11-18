@@ -18,8 +18,6 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -80,7 +78,7 @@ public class SQLParquetReaderWrapperTest {
     String filePath = getClass().getResource("/test/part-00000-ca926296-c481-49fe-bf29-9aad7345d53f-c000.snappy.parquet").getPath();
     SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
 
-    List<String> columns = sqlParquetReaderWrapper.getColumns();
+    List<String> columns = sqlParquetReaderWrapper.getFieldsNames();
 
     assertThat(columns, CoreMatchers.is(Arrays.asList("username", "value", "comment")));
   }
