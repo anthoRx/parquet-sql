@@ -18,7 +18,10 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,6 +163,15 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   public void setTimestamp(Timestamp value) {
     try {
       this.preparedStatement.setTimestamp(getNextIndex(), value);
+    } catch (SQLException e) {
+      addError(e);
+    }
+  }
+
+  @Override
+  public void setObject(Object value) {
+    try {
+      this.preparedStatement.setObject(getNextIndex(), value);
     } catch (SQLException e) {
       addError(e);
     }

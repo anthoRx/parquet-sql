@@ -18,7 +18,6 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.read.converter.*;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import io.github.anthorx.parquet.sql.write.SQLWriteSupport;
 import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -80,7 +79,7 @@ public class SQLGroupConverter extends GroupConverter {
    * @param parquetField
    * @return
    */
-  private Converter getConverterFromField(Type parquetField) {
+  protected Converter getConverterFromField(Type parquetField) {
     LogicalTypeAnnotation logicalTypeAnnotation = parquetField.getLogicalTypeAnnotation();
     String fieldName = parquetField.getName();
     Optional<Converter> converter;

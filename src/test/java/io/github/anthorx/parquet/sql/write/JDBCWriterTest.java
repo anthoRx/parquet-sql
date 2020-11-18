@@ -17,7 +17,7 @@ package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
-import io.github.anthorx.parquet.sql.read.SQLParquetReader;
+import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,11 +47,12 @@ public class JDBCWriterTest {
   private RecordConsumerInitializer lazyRecordConsumerInitializer;
 
   @Mock
-  private SQLParquetReader sqlParquetReader;
+  private SQLParquetReaderWrapper sqlParquetReaderWrapper;
 
   @BeforeEach
   public void setUp() throws SQLException {
     when(lazyRecordConsumerInitializer.initialize(anyList())).thenReturn(mockedRecordConsumer);
+    when(sqlParquetReaderWrapper.getFieldsNames()).thenReturn(Arrays.asList("int", "string"));
   }
 
   private Record createBasicRecord() {
@@ -63,10 +65,10 @@ public class JDBCWriterTest {
 
   @Test
   public void recordsAreInsertedUntilTheEnd() throws IOException, SQLException {
-    when(sqlParquetReader.read())
+    when(sqlParquetReaderWrapper.read())
         .thenReturn(createBasicRecord(), createBasicRecord(), null);
 
-    JDBCWriter jdbcWriter = spy(new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReader, 2));
+    JDBCWriter jdbcWriter = spy(new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2));
     jdbcWriter.write();
 
     verify(mockedRecordConsumer, times(2)).addBatch();
@@ -75,7 +77,7 @@ public class JDBCWriterTest {
 
   @Test
   public void recordFieldsAreConsumed() throws IOException, SQLException {
-    when(sqlParquetReader.read()).thenReturn(createBasicRecord(), null);
+    when(sqlParquetReaderWrapper.read()).thenReturn(createBasicRecord(), null);
 
     doAnswer(invoc -> {
       int arg = invoc.getArgument(0);
@@ -89,7 +91,7 @@ public class JDBCWriterTest {
       return null;
     }).when(mockedRecordConsumer).setString(anyString());
 
-    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReader, 2);
+    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
     jdbcWriter.write();
 
     verify(mockedRecordConsumer, times(1)).addBatch();
@@ -97,10 +99,10 @@ public class JDBCWriterTest {
 
   @Test
   public void recordAreInsertedInBatchWhen() throws IOException, SQLException {
-    when(sqlParquetReader.read())
+    when(sqlParquetReaderWrapper.read())
         .thenReturn(createBasicRecord(), createBasicRecord(), createBasicRecord(), null);
 
-    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReader, 2);
+    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
     jdbcWriter.write();
 
     verify(mockedRecordConsumer, times(2)).executeBatch();
@@ -108,10 +110,23 @@ public class JDBCWriterTest {
 
   @Test
   public void recordAreInsertedInBatch() throws IOException, SQLException {
-    when(sqlParquetReader.read())
+    when(sqlParquetReaderWrapper.read())
         .thenReturn(createBasicRecord(), createBasicRecord(), createBasicRecord(), createBasicRecord(), null);
 
-    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReader, 2);
+    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
+    jdbcWriter.write();
+
+    verify(mockedRecordConsumer, times(2)).executeBatch();
+  }
+
+  @Test
+  public void shouldSuccessInsertVaryingRecordColumns() throws IOException, SQLException {
+    Record recordWithLessColumns = new Record();
+    recordWithLessColumns.addField(new RecordField<>("int", 10).addReadConsumer(ReadRecordConsumer::setInt));
+    when(sqlParquetReaderWrapper.read())
+        .thenReturn(createBasicRecord(), createBasicRecord(), recordWithLessColumns, null);
+
+    JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
     jdbcWriter.write();
 
     verify(mockedRecordConsumer, times(2)).executeBatch();

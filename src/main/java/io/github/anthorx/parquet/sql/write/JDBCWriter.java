@@ -17,34 +17,36 @@ package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
-import io.github.anthorx.parquet.sql.read.SQLParquetReader;
+import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
+import io.github.anthorx.parquet.sql.read.converter.FieldConverter;
+import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.io.api.Converter;
+import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 public class JDBCWriter {
 
-  final private ParquetReader<Record> parquetReader;
+  final private SQLParquetReaderWrapper parquetReaderWrapper;
   final private RecordConsumerInitializer lazyRecordConsumerInitializer;
   private int batchSize;
 
 
   public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, String filePath, int batchSize) throws IOException {
     this.lazyRecordConsumerInitializer = lazyRecordConsumerInitializer;
-    this.parquetReader = SQLParquetReader
-        .builder(filePath)
-        .build();
+    this.parquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
     this.batchSize = batchSize;
   }
 
-  public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, SQLParquetReader sqlParquetReader, int batchSize) {
+  public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, SQLParquetReaderWrapper sqlParquetReaderWrapper, int batchSize) {
     this.lazyRecordConsumerInitializer = lazyRecordConsumerInitializer;
-    this.parquetReader = sqlParquetReader;
+    this.parquetReaderWrapper = sqlParquetReaderWrapper;
     this.batchSize = batchSize;
   }
 
@@ -59,20 +61,15 @@ public class JDBCWriter {
 
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
-    Record record = parquetReader.read();
+    List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
+    List<Type> fields = parquetReaderWrapper.getFields();
+    Record record = parquetReaderWrapper.read();
 
     if (record != null) {
-      List<String> columnNames = record
-          .getFields()
-          .stream()
-          .map(RecordField::getName)
-          .collect(Collectors.toList());
-
-      try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(columnNames)) {
+      try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          record
-              .getFields()
-              .forEach(field -> field.applyReadConsumer(recordConsumer));
+          List<RecordField> fieldsValues = extractFieldValues(fields, record);
+          fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
           ++nbRecordInBatch;
@@ -81,7 +78,7 @@ public class JDBCWriter {
             recordConsumer.executeBatch();
             nbRecordInBatch = 0;
           }
-        } while ((record = parquetReader.read()) != null);
+        } while ((record = parquetReaderWrapper.read()) != null);
 
         if (nbRecordInBatch != 0) {
           recordConsumer.executeBatch();
@@ -90,5 +87,25 @@ public class JDBCWriter {
         throw new SQLException("Error when writing Parquet records to the target table.", e);
       }
     }
+  }
+
+  private List<RecordField> extractFieldValues(List<Type> fields, Record record) {
+    return fields
+        .stream()
+        .reduce(new ArrayList<>(), (currentValues, currentField) -> {
+          RecordField result = record
+              .getField(currentField.getName())
+              .orElse(createNullRecordField(currentField));
+          currentValues.add(result);
+          return currentValues;
+        }, (before, after) -> after);
+  }
+
+  private RecordField createNullRecordField(Type currentField) {
+    RecordField<Object> recordField = new RecordField<>(currentField.getName(), null);
+    BiConsumer<ReadRecordConsumer, Object> objectRecordConsumer = ReadRecordConsumer::setObject;
+    recordField.addReadConsumer(objectRecordConsumer);
+
+    return recordField;
   }
 }

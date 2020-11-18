@@ -43,4 +43,6 @@ public interface ReadRecordConsumer {
   void setDate(Date value);
 
   void setTimestamp(Timestamp value);
+
+  void setObject(Object value);
 }
