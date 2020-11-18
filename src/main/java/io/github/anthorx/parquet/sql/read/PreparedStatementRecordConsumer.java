@@ -169,6 +169,15 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   }
 
   @Override
+  public void setObject(Object value) {
+    try {
+      this.preparedStatement.setObject(getNextIndex(), value);
+    } catch (SQLException e) {
+      addError(e);
+    }
+  }
+
+  @Override
   public void close() throws SQLException {
     this.preparedStatement.close();
   }

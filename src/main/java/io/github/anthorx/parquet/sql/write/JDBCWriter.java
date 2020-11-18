@@ -19,6 +19,7 @@ import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.read.converter.FieldConverter;
+import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.parquet.io.api.Converter;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class JDBCWriter {
 
@@ -100,13 +102,9 @@ public class JDBCWriter {
   }
 
   private RecordField createNullRecordField(Type currentField) {
-    RecordField recordField = new RecordField<>(currentField.getName(), null);
-    Converter fieldConverter = parquetReaderWrapper.getConverterFromField(currentField);
-    if (fieldConverter instanceof FieldConverter) {
-      recordField.addReadConsumer(((FieldConverter) fieldConverter).getReadRecordConsumerFunction());
-    } else {
-      throw new IllegalArgumentException("Invalid converter found reading in createNullRecordField");
-    }
+    RecordField<Object> recordField = new RecordField<>(currentField.getName(), null);
+    BiConsumer<ReadRecordConsumer, Object> objectRecordConsumer = ReadRecordConsumer::setObject;
+    recordField.addReadConsumer(objectRecordConsumer);
 
     return recordField;
   }

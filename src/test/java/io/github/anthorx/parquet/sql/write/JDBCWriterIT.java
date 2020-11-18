@@ -36,7 +36,7 @@ public class JDBCWriterIT {
 
   @Test
   public void shouldSuccessInsertDataFromFileWhenColumnsEqualsSchema() throws Exception {
-    String filePath = getClass().getResource("/test/part-00001-ca926296-c481-49fe-bf29-9aad7345d53f-c000.snappy.parquet").getPath();
+    String filePath = getClass().getResource("/test/part-00001-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
     JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, filePath, 50);
 
     jdbcWriter.write();
@@ -49,8 +49,8 @@ public class JDBCWriterIT {
   }
 
   @Test
-  public void shouldSUccessInsertDataFromFileWhenLessColumnsThanSchema() throws Exception {
-    String filePath = getClass().getResource("/test/part-00000-ca926296-c481-49fe-bf29-9aad7345d53f-c000.snappy.parquet").getPath();
+  public void shouldSuccessInsertDataFromFileWhenLessColumnsThanSchema() throws Exception {
+    String filePath = getClass().getResource("/test/part-00000-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
     JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, filePath, 50);
 
     jdbcWriter.write();
@@ -59,7 +59,21 @@ public class JDBCWriterIT {
     result.next();
     Assertions.assertEquals(result.getString(column1), "Paul");
     Assertions.assertEquals(result.getInt(column2), 4);
-    Assertions.assertEquals(result.getString(column3), null);
+    Assertions.assertNull(result.getString(column3));
+  }
+
+  @Test
+  public void shouldSuccessInsertDataFromFileWhenNullColumnsIsInt() throws Exception {
+    String filePath = getClass().getResource("/test/part-00002-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
+    JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, filePath, 50);
+
+    jdbcWriter.write();
+
+    ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
+    result.next();
+    Assertions.assertEquals(result.getString(column1), "Patrick");
+    Assertions.assertNull(result.getObject(column2));
+    Assertions.assertEquals(result.getString(column3), "Null int!");
   }
 
 
