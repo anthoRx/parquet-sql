@@ -46,8 +46,4 @@ public abstract class FieldConverter<T> extends PrimitiveConverter {
         .addReadConsumer(readRecordConsumerFunction);
     f.accept(recordField);
   }
-
-  public BiConsumer<ReadRecordConsumer, T> getReadRecordConsumerFunction() {
-    return readRecordConsumerFunction;
-  }
 }
