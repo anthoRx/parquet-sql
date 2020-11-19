@@ -18,11 +18,10 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
-import io.github.anthorx.parquet.sql.read.converter.FieldConverter;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import org.apache.parquet.io.api.Converter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class JDBCWriter {
 
   public JDBCWriter(RecordConsumerInitializer lazyRecordConsumerInitializer, String filePath, int batchSize) throws IOException {
     this.lazyRecordConsumerInitializer = lazyRecordConsumerInitializer;
-    this.parquetReaderWrapper = new SQLParquetReaderWrapper(filePath);
+    this.parquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
     this.batchSize = batchSize;
   }
 

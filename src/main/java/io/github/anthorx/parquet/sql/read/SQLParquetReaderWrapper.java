@@ -38,13 +38,14 @@ import java.util.stream.Collectors;
 
 public class SQLParquetReaderWrapper {
 
-  private ParquetReader<Record> currentParquetReader;
   private final Iterator<ParquetReader<Record>> parquetReaderIterator;
+  private final Configuration configuration;
+  private ParquetReader<Record> currentParquetReader;
   private MessageType schema;
 
-  public SQLParquetReaderWrapper(String stringFilePath) throws IOException {
+  public SQLParquetReaderWrapper(String stringFilePath, Configuration configuration) throws IOException {
+    this.configuration = configuration;
     Path filePath = new Path(stringFilePath);
-    Configuration configuration = new Configuration();
     FileSystem fileSystem = filePath.getFileSystem(configuration);
     FileStatus fileStatus = fileSystem.getFileStatus(filePath);
 
