@@ -15,11 +15,11 @@
 
 package io.github.anthorx.parquet.sql.write;
 
+import io.github.anthorx.parquet.sql.model.SQLRow;
+import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.write.converter.ConvertException;
 import io.github.anthorx.parquet.sql.write.converter.ConverterContainer;
 import io.github.anthorx.parquet.sql.write.converter.RecordsConverter;
-import io.github.anthorx.parquet.sql.model.SQLRow;
-import io.github.anthorx.parquet.sql.record.Record;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;

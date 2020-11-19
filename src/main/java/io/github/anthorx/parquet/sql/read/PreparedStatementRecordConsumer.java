@@ -16,6 +16,7 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
+import io.github.anthorx.parquet.sql.utils.AssertionUtils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -25,13 +26,15 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
+public class PreparedStatementRecordConsumer implements ReadRecordConsumer, AutoCloseable {
 
-  private PreparedStatement preparedStatement;
-  private List<String> errors;
+  private final PreparedStatement preparedStatement;
+  private final List<String> errors;
   private int currentParameterIndex = 0;
 
   public PreparedStatementRecordConsumer(PreparedStatement preparedStatement) {
+    AssertionUtils.notNull(preparedStatement, "A valid PreparedStatement is required for PreparedStatementRecordConsumer.");
+
     this.preparedStatement = preparedStatement;
     this.errors = new ArrayList<>();
   }
@@ -45,6 +48,10 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
       this.currentParameterIndex = 0;
       this.errors.clear();
     }
+  }
+
+  public void executeBatch() throws SQLException {
+    this.preparedStatement.executeBatch();
   }
 
   private int getNextIndex() {
@@ -162,5 +169,19 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer {
     } catch (SQLException e) {
       addError(e);
     }
+  }
+
+  @Override
+  public void setObject(Object value) {
+    try {
+      this.preparedStatement.setObject(getNextIndex(), value);
+    } catch (SQLException e) {
+      addError(e);
+    }
+  }
+
+  @Override
+  public void close() throws SQLException {
+    this.preparedStatement.close();
   }
 }
