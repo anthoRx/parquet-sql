@@ -17,39 +17,75 @@ package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.record.Record;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
+import org.apache.parquet.hadoop.util.HiddenFileFilter;
 import org.apache.parquet.io.InputFile;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SQLParquetReaderWrapper {
 
-  private final ParquetReader<Record> parquetReader;
-  private final MessageType schema;
+  private ParquetReader<Record> currentParquetReader;
+  private final Iterator<ParquetReader<Record>> parquetReaderIterator;
+  private MessageType schema;
 
-  public SQLParquetReaderWrapper(String filePath) throws IOException {
-    InputFile inputFile = HadoopInputFile.fromPath(new Path(filePath), new Configuration());
+  public SQLParquetReaderWrapper(String stringFilePath) throws IOException {
+    Path filePath = new Path(stringFilePath);
+    Configuration configuration = new Configuration();
+    FileSystem fileSystem = filePath.getFileSystem(configuration);
+    FileStatus fileStatus = fileSystem.getFileStatus(filePath);
 
-    ParquetReader.Builder<Record> recordParquetReader = new SQLParquetReaderWrapper.Builder(inputFile);
-
-    this.parquetReader = recordParquetReader.build();
-    this.schema = this.initFileSchema(inputFile);
+    if(fileStatus.isDir()) {
+      this.parquetReaderIterator = createReadersFromFolderAndInitSchema(fileSystem, filePath, configuration);
+    } else {
+      this.parquetReaderIterator = createReadersFromFileAndInitSchema(fileStatus, configuration);
+    }
   }
 
-  private MessageType initFileSchema(InputFile inputFile) throws IOException {
+  private Iterator<ParquetReader<Record>> createReadersFromFolderAndInitSchema(FileSystem fileSystem, Path filePath,
+                                                                               Configuration configuration) throws IOException {
+    List<ParquetReader<Record>> parquetReaderList = new ArrayList<>();
+    for (FileStatus currentFileStatus : fileSystem.listStatus(filePath, HiddenFileFilter.INSTANCE)) {
+      InputFile currentInputFile = HadoopInputFile.fromStatus(currentFileStatus, configuration);
+
+      if (schema == null) {
+        this.initFileSchema(currentInputFile);
+      }
+
+      ParquetReader.Builder<Record> builder = new SQLParquetReaderWrapper.Builder(currentInputFile);
+      parquetReaderList.add(builder.build());
+    }
+
+    return parquetReaderList.iterator();
+  }
+
+  private Iterator<ParquetReader<Record>> createReadersFromFileAndInitSchema(FileStatus fileStatus, Configuration configuration) throws IOException {
+    InputFile inputFile = HadoopInputFile.fromStatus(fileStatus, configuration);
+    ParquetReader.Builder<Record> recordParquetReader = new SQLParquetReaderWrapper.Builder(inputFile);
+
+    this.initFileSchema(inputFile);
+    return Collections.singletonList(recordParquetReader.build()).iterator();
+  }
+
+  private void initFileSchema(InputFile inputFile) throws IOException {
     ParquetFileReader parquetFileReader = ParquetFileReader.open(inputFile);
     MessageType schema = parquetFileReader.getFileMetaData().getSchema();
     parquetFileReader.close();
 
-    return schema;
+    this.schema = schema;
   }
 
   public MessageType getSchema() {
@@ -57,7 +93,26 @@ public class SQLParquetReaderWrapper {
   }
 
   public Record read() throws IOException {
-    return parquetReader.read();
+    if (currentParquetReader == null) {
+      return readFromNextParquetReader();
+    }
+
+    Record result = currentParquetReader.read();
+
+    if (result == null) {
+      return readFromNextParquetReader();
+    }
+
+    return result;
+  }
+
+  private Record readFromNextParquetReader() throws IOException {
+    if (parquetReaderIterator.hasNext()) {
+      currentParquetReader = parquetReaderIterator.next();
+      return currentParquetReader.read();
+    } else {
+      return null;
+    }
   }
 
   public List<String> getFieldsNames() {

@@ -76,6 +76,18 @@ public class JDBCWriterIT {
     Assertions.assertEquals(result.getString(column3), "Null int!");
   }
 
+  @Test
+  public void shouldSuccessInsertDataFromMultipartFiles() throws Exception {
+    String folderPath = getClass().getResource("/test").getPath();
+    JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, folderPath, 50);
+
+    jdbcWriter.write();
+
+    ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
+    result.next();
+    Assertions.assertEquals(result.getInt(1), 3);
+  }
+
 
   private static RecordConsumerInitializer initConsumerInitializer() throws Exception {
     connection = cp.getConnection();
