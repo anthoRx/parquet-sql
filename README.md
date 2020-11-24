@@ -6,7 +6,7 @@
 <dependency>
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.3</version>
 </dependency>
 ```
 
@@ -30,21 +30,16 @@
 ```
 
 # How to read a Parquet file to insert in a SQL database
+To insert in a SQL database records of a Parquet file, you have to initialize a RecordConsumerInitializer and JDBCWriter.  
+
+The RecordConsumerInitializer allows to provide information on  database connection and on the target table.  
+
+JDBCWriter is responsible to write the records of the provided Parquet file to the Database, according to the RecordConsumerInitializer initialized before. The batchSize has to be provided too.
+ 
+
 ```java
-    ParquetReader<Record> parquetReader = SQLParquetReader
-        .builder(filePath)
-        .build();
+    RecordConsumerInitializer consumerInitializer = new RecordConsumerInitializer(connection, "myTable");
 
-    PreparedStatement preparedStatement = con.prepareStatement(insertQuery);
-    PreparedStatementRecordConsumer psrc = new PreparedStatementRecordConsumer(preparedStatement);
-
-    Record record;
-    while ((record = parquetReader.read()) != null) {
-      record
-          .getFields()
-          .forEach( f -> f.applyReadConsumer(psrc));
-      psrc.addBatch();
-    }
-
-    preparedStatement.executeBatch();
+    JDBCWriter jdbcWriter = new JDBCWriter(consumerInitializer, "/tmp/file.parquet", 50000);
+    jdbcWriter.write();
 ```
