@@ -18,7 +18,9 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.parquet.hadoop.ParquetReader;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,6 +31,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -82,5 +86,45 @@ public class SQLParquetReaderWrapperTest {
     List<String> columns = sqlParquetReaderWrapper.getFieldsNames();
 
     assertThat(columns, CoreMatchers.is(Arrays.asList("username", "value", "comment")));
+  }
+
+  @Test
+  public void shouldSuccessReadSchemaFromFolder() throws IOException {
+    String filePath = getClass().getResource("/test").getPath();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
+
+    List<String> columns = sqlParquetReaderWrapper.getFieldsNames();
+
+    assertThat(columns, CoreMatchers.is(Arrays.asList("username", "value", "comment")));
+  }
+
+  @Test
+  public void shouldFailParallelReadAfterRead() throws IOException {
+    String filePath = getClass().getResource("/test").getPath();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
+
+    sqlParquetReaderWrapper.read();
+
+    Assertions.assertThrows(IllegalArgumentException.class, sqlParquetReaderWrapper::toParallelStream);
+  }
+
+  @Test
+  public void shouldSuccessParallelReadASingleFile() throws IOException {
+    String filePath = getClass().getResource("/test/part-00000-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
+
+    Stream<ParquetReader<Record>> streamReaders = sqlParquetReaderWrapper.toParallelStream();
+
+    Assertions.assertEquals(1, streamReaders.count());
+  }
+
+  @Test
+  public void shouldSuccessParallelReadAFolder() throws IOException {
+    String filePath = getClass().getResource("/test").getPath();
+    SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
+
+    Stream<ParquetReader<Record>> streamReaders = sqlParquetReaderWrapper.toParallelStream();
+
+    Assertions.assertEquals(3, streamReaders.count());
   }
 }

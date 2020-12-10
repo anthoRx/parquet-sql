@@ -6,6 +6,9 @@ import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class JDBCWriterIT {
 
@@ -85,7 +88,19 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getInt(1), 3);
+    Assertions.assertEquals(3, result.getInt(1));
+  }
+
+  @Test
+  public void shouldSuccessInsertDataFromMultipartFilesInMultiThreads() throws Exception {
+    String folderPath = getClass().getResource("/test").getPath();
+    JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, folderPath, 50);
+
+    jdbcWriter.write(Executors.newFixedThreadPool(4)).get();
+
+    ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
+    result.next();
+    Assertions.assertEquals(3, result.getInt(1));
   }
 
 
