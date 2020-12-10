@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sql.DataSource;
@@ -17,8 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecordConsumerInitializerTest {
@@ -66,7 +65,7 @@ public class RecordConsumerInitializerTest {
     when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
 
-    Mockito.verify(connection).prepareStatement("insert  into car(brand,color,price) values (?,?,?)");
+    verify(connection).prepareStatement("insert  into car(brand,color,price) values (?,?,?)");
     Assert.assertNotNull(recordConsumer);
   }
 

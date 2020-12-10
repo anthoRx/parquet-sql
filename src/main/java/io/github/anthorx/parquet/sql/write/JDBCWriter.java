@@ -109,10 +109,7 @@ public class JDBCWriter {
     Record record = getNextRecord(reader);
     int nbRecordInBatch = 0;
 
-    System.out.println(String.format("Trehad for reader %s is %s", reader.toString(), Thread.currentThread().getId()));
-
     if (record != null) {
-      // TODO: Rework connection in lazyRecordConsumerInitializer
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
           List<RecordField> fieldsValues = extractFieldValues(fields, record);
