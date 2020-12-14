@@ -96,7 +96,7 @@ public class JDBCWriterIT {
     String folderPath = getClass().getResource("/test").getPath();
     JDBCWriter jdbcWriter = new JDBCWriter(recordConsumerInitializer, folderPath, 50);
 
-    jdbcWriter.write(Executors.newFixedThreadPool(4)).get();
+    jdbcWriter.write(Executors.newFixedThreadPool(4)).join();
 
     ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
     result.next();

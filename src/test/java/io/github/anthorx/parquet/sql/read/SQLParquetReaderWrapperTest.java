@@ -29,6 +29,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -105,7 +106,7 @@ public class SQLParquetReaderWrapperTest {
 
     sqlParquetReaderWrapper.read();
 
-    Assertions.assertThrows(IllegalArgumentException.class, sqlParquetReaderWrapper::toParallelStream);
+    Assertions.assertThrows(IllegalArgumentException.class, sqlParquetReaderWrapper::getParquetReaderIterator);
   }
 
   @Test
@@ -113,9 +114,10 @@ public class SQLParquetReaderWrapperTest {
     String filePath = getClass().getResource("/test/part-00000-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
     SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
 
-    Stream<ParquetReader<Record>> streamReaders = sqlParquetReaderWrapper.toParallelStream();
+    Iterator<ParquetReader<Record>> parquetReaders = sqlParquetReaderWrapper.getParquetReaderIterator();
+    parquetReaders.next();
 
-    Assertions.assertEquals(1, streamReaders.count());
+    Assertions.assertFalse(parquetReaders.hasNext());
   }
 
   @Test
@@ -123,8 +125,11 @@ public class SQLParquetReaderWrapperTest {
     String filePath = getClass().getResource("/test").getPath();
     SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
 
-    Stream<ParquetReader<Record>> streamReaders = sqlParquetReaderWrapper.toParallelStream();
+    Iterator<ParquetReader<Record>> parquetReaders = sqlParquetReaderWrapper.getParquetReaderIterator();
+    parquetReaders.next();
+    parquetReaders.next();
+    parquetReaders.next();
 
-    Assertions.assertEquals(3, streamReaders.count());
+    Assertions.assertFalse(parquetReaders.hasNext());
   }
 }

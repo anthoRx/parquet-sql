@@ -105,13 +105,12 @@ public class SQLParquetReaderWrapper {
     return result;
   }
 
-  public Stream<ParquetReader<Record>> toParallelStream() {
+  public Iterator<ParquetReader<Record>> getParquetReaderIterator() {
     if (currentParquetReader != null) {
-      throw new IllegalArgumentException("You can't use toStream if you already read something");
+      throw new IllegalArgumentException("You can't use getParquetReaderIterator if you already read something");
     }
 
-    Spliterator<ParquetReader<Record>> spliterator = Spliterators.spliteratorUnknownSize(parquetReaderIterator, Spliterator.NONNULL);
-    return StreamSupport.stream(spliterator, true);
+    return this.parquetReaderIterator;
   }
 
   private Record readFromNextParquetReader() throws IOException {

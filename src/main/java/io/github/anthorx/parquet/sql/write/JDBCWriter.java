@@ -28,7 +28,9 @@ import org.apache.parquet.schema.Type;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
@@ -91,53 +93,27 @@ public class JDBCWriter {
     }
   }
 
-  public Future write(ExecutorService executorService) {
+  public CompletableFuture<Void> write(ExecutorService executorService) {
     if (executorService == null) {
       throw new IllegalArgumentException("The ExecutorService can't be null");
     }
     List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
     List<Type> fields = parquetReaderWrapper.getFields();
 
-    return executorService.submit(() -> parquetReaderWrapper
-        .toParallelStream()
-        .forEach(currentReader -> {
-          writerUntilReaderFinished(fieldsNames, fields, currentReader);
-        }));
+    Iterator<ParquetReader<Record>> parquetReaderIterator = parquetReaderWrapper.getParquetReaderIterator();
+    List<CompletableFuture<Void>> readerFutures = new ArrayList<>();
+    parquetReaderIterator.forEachRemaining(currentReader ->
+        readerFutures.add(CompletableFuture.runAsync(() -> futureWrite(currentReader, fieldsNames, fields))));
+
+    return CompletableFuture.allOf(readerFutures.toArray(new CompletableFuture[0]));
   }
 
-  private void writerUntilReaderFinished(List<String> fieldsNames, List<Type> fields, ParquetReader<Record> reader) {
-    Record record = getNextRecord(reader);
-    int nbRecordInBatch = 0;
-
-    if (record != null) {
-      try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
-        do {
-          List<RecordField> fieldsValues = extractFieldValues(fields, record);
-          fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
-
-          recordConsumer.addBatch();
-          ++nbRecordInBatch;
-
-          if (nbRecordInBatch >= batchSize) {
-            recordConsumer.executeBatch();
-            nbRecordInBatch = 0;
-          }
-        } while ((record = getNextRecord(reader)) != null);
-
-        if (nbRecordInBatch != 0) {
-          recordConsumer.executeBatch();
-        }
-      } catch (SQLException e) {
-        throw new JDBCWriterException("Error when writing Parquet records to the target table.", e);
-      }
-    }
-  }
-
-  private Record getNextRecord(ParquetReader<Record> reader) {
-    try {
-      return reader.read();
-    } catch (IOException e) {
-      throw new JDBCWriterException("Can't read the next record: " + e.getMessage(), e);
+  private void futureWrite(ParquetReader<Record> currentReader, List<String> fieldsNames, List<Type> fields) {
+    try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
+      ParquetReaderToDb parquetReaderToDb = new ParquetReaderToDb(currentReader, recordConsumer, fields);
+      parquetReaderToDb.compute(batchSize);
+    } catch (SQLException e) {
+      throw new JDBCWriterException("Error when retrieving PreparedStatementRecordConsumer.", e);
     }
   }
 
