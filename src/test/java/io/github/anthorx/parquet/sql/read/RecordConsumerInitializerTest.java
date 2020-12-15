@@ -34,9 +34,9 @@ public class RecordConsumerInitializerTest {
 
   @Test
   public void insertQueryGeneratedFromListOfColumns() {
-    String result = initializer.insertQueryBuilder(Arrays.asList("brand", "color", "price"));
+    String result = initializer.insertQueryBuilder(Arrays.asList("brand", "color", "price"), "");
 
-    String expected = "insert into " + tableName + "(brand,color,price) values (?,?,?)";
+    String expected = "insert  into " + tableName + "(brand,color,price) values (?,?,?)";
 
     Assert.assertEquals(expected, result);
   }
@@ -45,6 +45,14 @@ public class RecordConsumerInitializerTest {
   public void initializeRecordConsumerFromListOfColumns() throws SQLException {
     when(connection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
+    Assert.assertNotNull(recordConsumer);
+  }
+
+  @Test
+  public void initializeRecordConsumerFromListOfColumnsWithHint() throws SQLException {
+    when(connection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
+    PreparedStatementRecordConsumer recordConsumer =
+        initializer.initializeWithHint(Arrays.asList("brand", "color", "price"), "/*+ APPEND_VALUES */");
     Assert.assertNotNull(recordConsumer);
   }
 

@@ -15,6 +15,7 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.utils.AssertionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  */
 public class RecordConsumerInitializer {
 
+  private static final String DEFAULT_HINT = "";
   final private Connection connection;
   final private String tableName;
 
@@ -42,18 +44,26 @@ public class RecordConsumerInitializer {
   public PreparedStatementRecordConsumer initialize(List<String> columnNames) throws SQLException, IllegalArgumentException {
     AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
 
-    String insertQuery = insertQueryBuilder(columnNames);
+    String insertQuery = insertQueryBuilder(columnNames, DEFAULT_HINT);
     PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
     return new PreparedStatementRecordConsumer(preparedStatement);
   }
 
-  protected String insertQueryBuilder(List<String> columnNames) {
+  public PreparedStatementRecordConsumer initializeWithHint(List<String> columnNames, String hint) throws SQLException, IllegalArgumentException {
+    AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
+
+    String insertQuery = insertQueryBuilder(columnNames, hint);
+    PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+    return new PreparedStatementRecordConsumer(preparedStatement);
+  }
+
+  protected String insertQueryBuilder(List<String> columnNames, String hint) {
     String formattedColumns = columnNames
         .stream()
         .collect(Collectors.joining(",", "(", ")"));
 
     String elem = String.join(",", Collections.nCopies(columnNames.size(), "?"));
 
-    return String.format("insert into %s%s values (%s)", this.tableName, formattedColumns, elem);
+    return String.format("insert %s into %s%s values (%s)", hint, this.tableName, formattedColumns, elem);
   }
 }
