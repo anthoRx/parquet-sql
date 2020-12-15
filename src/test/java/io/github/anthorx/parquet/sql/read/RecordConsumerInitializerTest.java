@@ -34,7 +34,7 @@ public class RecordConsumerInitializerTest {
 
   @Test
   public void insertQueryGeneratedFromListOfColumns() {
-    String result = initializer.insertQueryBuilder(Arrays.asList("brand", "color", "price"), "");
+    String result = initializer.insertQueryBuilder(Arrays.asList("brand", "color", "price"));
 
     String expected = "insert  into " + tableName + "(brand,color,price) values (?,?,?)";
 
@@ -42,17 +42,19 @@ public class RecordConsumerInitializerTest {
   }
 
   @Test
+  public void initializeRecordConsumerFromListOfColumnsWithHint() throws SQLException {
+    RecordConsumerInitializer init = new RecordConsumerInitializer(connection, tableName, "/*+ APPEND_VALUES */");
+    String result = init.insertQueryBuilder(Arrays.asList("brand", "color", "price"));
+    String expected = "insert /*+ APPEND_VALUES */ into " + tableName + "(brand,color,price) values (?,?,?)";
+
+    Assert.assertEquals(expected, result);
+  }
+
+
+  @Test
   public void initializeRecordConsumerFromListOfColumns() throws SQLException {
     when(connection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
-    Assert.assertNotNull(recordConsumer);
-  }
-
-  @Test
-  public void initializeRecordConsumerFromListOfColumnsWithHint() throws SQLException {
-    when(connection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
-    PreparedStatementRecordConsumer recordConsumer =
-        initializer.initializeWithHint(Arrays.asList("brand", "color", "price"), "/*+ APPEND_VALUES */");
     Assert.assertNotNull(recordConsumer);
   }
 

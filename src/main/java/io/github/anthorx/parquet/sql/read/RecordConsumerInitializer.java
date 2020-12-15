@@ -29,35 +29,34 @@ import java.util.stream.Collectors;
  */
 public class RecordConsumerInitializer {
 
-  private static final String DEFAULT_HINT = "";
-  final private Connection connection;
-  final private String tableName;
+  private final static String DEFAULT_HINT = "";
+  private final Connection connection;
+  private final String tableName;
+  private final String hint;
 
-  public RecordConsumerInitializer(Connection connection, String tableName) {
+  public RecordConsumerInitializer(Connection connection, String tableName, String hint) {
     AssertionUtils.notNull(connection, "A valid connection is required for RecordConsumerInitializer.");
     AssertionUtils.notNull(connection, "A valid table's name is required for RecordConsumerInitializer.");
+    AssertionUtils.notNull(hint, "A null hint is not allowed for RecordConsumerInitializer.");
 
     this.connection = connection;
     this.tableName = tableName;
+    this.hint = hint;
+  }
+
+  public RecordConsumerInitializer(Connection connection, String tableName) {
+    this(connection, tableName, DEFAULT_HINT);
   }
 
   public PreparedStatementRecordConsumer initialize(List<String> columnNames) throws SQLException, IllegalArgumentException {
     AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
 
-    String insertQuery = insertQueryBuilder(columnNames, DEFAULT_HINT);
+    String insertQuery = insertQueryBuilder(columnNames);
     PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
     return new PreparedStatementRecordConsumer(preparedStatement);
   }
 
-  public PreparedStatementRecordConsumer initializeWithHint(List<String> columnNames, String hint) throws SQLException, IllegalArgumentException {
-    AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
-
-    String insertQuery = insertQueryBuilder(columnNames, hint);
-    PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
-    return new PreparedStatementRecordConsumer(preparedStatement);
-  }
-
-  protected String insertQueryBuilder(List<String> columnNames, String hint) {
+  protected String insertQueryBuilder(List<String> columnNames) {
     String formattedColumns = columnNames
         .stream()
         .collect(Collectors.joining(",", "(", ")"));
