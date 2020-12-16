@@ -17,6 +17,7 @@ package io.github.anthorx.parquet.sql.read;
 import io.github.anthorx.parquet.sql.utils.AssertionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,29 +31,29 @@ import java.util.stream.Collectors;
 public class RecordConsumerInitializer {
 
   private final static String DEFAULT_HINT = "";
-  private final Connection connection;
+  private final DataSource dataSource;
   private final String tableName;
   private final String hint;
 
-  public RecordConsumerInitializer(Connection connection, String tableName, String hint) {
-    AssertionUtils.notNull(connection, "A valid connection is required for RecordConsumerInitializer.");
-    AssertionUtils.notNull(connection, "A valid table's name is required for RecordConsumerInitializer.");
+  public RecordConsumerInitializer(DataSource dataSource, String tableName, String hint) {
+    AssertionUtils.notNull(dataSource, "A valid dataSource is required for RecordConsumerInitializer.");
+    AssertionUtils.notNull(tableName, "A valid table's name is required for RecordConsumerInitializer.");
     AssertionUtils.notNull(hint, "A null hint is not allowed for RecordConsumerInitializer.");
 
-    this.connection = connection;
+    this.dataSource = dataSource;
     this.tableName = tableName;
     this.hint = hint;
   }
 
-  public RecordConsumerInitializer(Connection connection, String tableName) {
-    this(connection, tableName, DEFAULT_HINT);
+  public RecordConsumerInitializer(DataSource dataSource, String tableName) {
+    this(dataSource, tableName, DEFAULT_HINT);
   }
 
   public PreparedStatementRecordConsumer initialize(List<String> columnNames) throws SQLException, IllegalArgumentException {
     AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
 
     String insertQuery = insertQueryBuilder(columnNames);
-    PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+    PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(insertQuery);
     return new PreparedStatementRecordConsumer(preparedStatement);
   }
 

@@ -96,6 +96,6 @@ public class JDBCWriterIT {
         .prepareStatement(String.format("CREATE TABLE %s ( %s VARCHAR(50), %s INT, %s VARCHAR(50))", tableName, column1, column2, column3))
         .execute();
 
-    return new RecordConsumerInitializer(connection, tableName);
+    return new RecordConsumerInitializer(cp, tableName);
   }
 }
