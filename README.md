@@ -6,7 +6,7 @@
 <dependency>
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
 </dependency>
 ```
 
