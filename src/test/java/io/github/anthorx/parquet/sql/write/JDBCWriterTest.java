@@ -79,18 +79,6 @@ public class JDBCWriterTest {
   public void recordFieldsAreConsumed() throws IOException, SQLException {
     when(sqlParquetReaderWrapper.read()).thenReturn(createBasicRecord(), null);
 
-    doAnswer(invoc -> {
-      int arg = invoc.getArgument(0);
-      Assert.assertEquals(10, arg);
-      return null;
-    }).when(mockedRecordConsumer).setInt(anyInt());
-
-    doAnswer(invoc -> {
-      String arg = invoc.getArgument(0);
-      Assert.assertEquals("stringValue", arg);
-      return null;
-    }).when(mockedRecordConsumer).setString(anyString());
-
     JDBCWriter jdbcWriter = new JDBCWriter(lazyRecordConsumerInitializer, sqlParquetReaderWrapper, 2);
     jdbcWriter.write();
 

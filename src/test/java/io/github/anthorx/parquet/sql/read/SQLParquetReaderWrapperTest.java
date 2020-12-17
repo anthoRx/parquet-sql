@@ -76,7 +76,7 @@ public class SQLParquetReaderWrapperTest {
 
   @Test
   public void shouldSuccessReadSchemaSingleFile() throws IOException {
-    String filePath = getClass().getResource("/test/part-00000-ca926296-c481-49fe-bf29-9aad7345d53f-c000.snappy.parquet").getPath();
+    String filePath = getClass().getResource("/test/part-00000-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
     SQLParquetReaderWrapper sqlParquetReaderWrapper = new SQLParquetReaderWrapper(filePath, new Configuration());
 
     List<String> columns = sqlParquetReaderWrapper.getFieldsNames();

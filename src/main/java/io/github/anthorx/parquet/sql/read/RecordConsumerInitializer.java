@@ -15,7 +15,9 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.utils.AssertionUtils;
+import org.apache.commons.lang.StringUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,22 +30,30 @@ import java.util.stream.Collectors;
  */
 public class RecordConsumerInitializer {
 
-  final private Connection connection;
-  final private String tableName;
+  private final static String DEFAULT_HINT = "";
+  private final DataSource dataSource;
+  private final String tableName;
+  private final String hint;
 
-  public RecordConsumerInitializer(Connection connection, String tableName) {
-    AssertionUtils.notNull(connection, "A valid connection is required for RecordConsumerInitializer.");
-    AssertionUtils.notNull(connection, "A valid table's name is required for RecordConsumerInitializer.");
+  public RecordConsumerInitializer(DataSource dataSource, String tableName, String hint) {
+    AssertionUtils.notNull(dataSource, "A valid dataSource is required for RecordConsumerInitializer.");
+    AssertionUtils.notNull(tableName, "A valid table's name is required for RecordConsumerInitializer.");
+    AssertionUtils.notNull(hint, "A null hint is not allowed for RecordConsumerInitializer.");
 
-    this.connection = connection;
+    this.dataSource = dataSource;
     this.tableName = tableName;
+    this.hint = hint;
+  }
+
+  public RecordConsumerInitializer(DataSource dataSource, String tableName) {
+    this(dataSource, tableName, DEFAULT_HINT);
   }
 
   public PreparedStatementRecordConsumer initialize(List<String> columnNames) throws SQLException, IllegalArgumentException {
     AssertionUtils.notEmpty(columnNames, "Impossible to initialize PreparedStatementRecordConsumer, no columns provided");
 
     String insertQuery = insertQueryBuilder(columnNames);
-    PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+    PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(insertQuery);
     return new PreparedStatementRecordConsumer(preparedStatement);
   }
 
@@ -54,6 +64,6 @@ public class RecordConsumerInitializer {
 
     String elem = String.join(",", Collections.nCopies(columnNames.size(), "?"));
 
-    return String.format("insert into %s%s values (%s)", this.tableName, formattedColumns, elem);
+    return String.format("insert %s into %s%s values (%s)", hint, this.tableName, formattedColumns, elem);
   }
 }
