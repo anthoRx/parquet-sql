@@ -22,12 +22,17 @@ import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
 public class JDBCWriter {
@@ -85,6 +90,30 @@ public class JDBCWriter {
       } catch (SQLException e) {
         throw new SQLException("Error when writing Parquet records to the target table.", e);
       }
+    }
+  }
+
+  public CompletableFuture<Void> write(ExecutorService executorService) {
+    if (executorService == null) {
+      throw new IllegalArgumentException("The ExecutorService can't be null");
+    }
+    List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
+    List<Type> fields = parquetReaderWrapper.getFields();
+
+    Iterator<ParquetReader<Record>> parquetReaderIterator = parquetReaderWrapper.getParquetReaderIterator();
+    List<CompletableFuture<Void>> readerFutures = new ArrayList<>();
+    parquetReaderIterator.forEachRemaining(currentReader ->
+        readerFutures.add(CompletableFuture.runAsync(() -> futureWrite(currentReader, fieldsNames, fields))));
+
+    return CompletableFuture.allOf(readerFutures.toArray(new CompletableFuture[0]));
+  }
+
+  private void futureWrite(ParquetReader<Record> currentReader, List<String> fieldsNames, List<Type> fields) {
+    try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
+      ParquetReaderToDb parquetReaderToDb = new ParquetReaderToDb(currentReader, recordConsumer, fields);
+      parquetReaderToDb.compute(batchSize);
+    } catch (SQLException e) {
+      throw new JDBCWriterException("Error when retrieving PreparedStatementRecordConsumer.", e);
     }
   }
 

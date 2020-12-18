@@ -30,21 +30,19 @@ import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class SQLParquetReaderWrapper {
 
   private final Iterator<ParquetReader<Record>> parquetReaderIterator;
-  private final Configuration configuration;
   private ParquetReader<Record> currentParquetReader;
   private MessageType schema;
 
   public SQLParquetReaderWrapper(String stringFilePath, Configuration configuration) throws IOException {
-    this.configuration = configuration;
     Path filePath = new Path(stringFilePath);
     FileSystem fileSystem = filePath.getFileSystem(configuration);
     FileStatus fileStatus = fileSystem.getFileStatus(filePath);
@@ -105,6 +103,14 @@ public class SQLParquetReaderWrapper {
     }
 
     return result;
+  }
+
+  public Iterator<ParquetReader<Record>> getParquetReaderIterator() {
+    if (currentParquetReader != null) {
+      throw new IllegalArgumentException("You can't use getParquetReaderIterator if you already read something");
+    }
+
+    return this.parquetReaderIterator;
   }
 
   private Record readFromNextParquetReader() throws IOException {

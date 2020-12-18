@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecordConsumerInitializerTest {
@@ -64,9 +64,10 @@ public class RecordConsumerInitializerTest {
   public void initializeRecordConsumerFromListOfColumns() throws SQLException {
     when(dataSource.getConnection()).thenReturn(connection);
     when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
 
-    Mockito.verify(connection).prepareStatement("insert  into car(brand,color,price) values (?,?,?)");
+    verify(connection).prepareStatement("insert  into car(brand,color,price) values (?,?,?)");
     Assert.assertNotNull(recordConsumer);
   }
 
