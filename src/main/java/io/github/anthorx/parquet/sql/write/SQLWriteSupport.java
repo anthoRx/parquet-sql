@@ -64,7 +64,7 @@ public class SQLWriteSupport extends WriteSupport<SQLRow> {
       writeRecords(records);
       recordConsumer.endMessage();
     } catch (ConvertException e) {
-      LOG.error("Can't convert "+row+" to Records. Row not written to the parquet file", e);
+      LOG.error("Can't convert " + row + " to Records. Row not written to the parquet file", e);
     }
   }
 

@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class JDBCWriter {
 
@@ -49,7 +49,6 @@ public class JDBCWriter {
     this.batchSize = batchSize;
   }
 
-
   public int getBatchSize() {
     return batchSize;
   }
@@ -67,7 +66,7 @@ public class JDBCWriter {
     if (record != null) {
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          List<RecordField> fieldsValues = extractFieldValues(fields, record);
+          List<RecordField<?>> fieldsValues = extractFieldValues(fields, record);
           fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
@@ -88,11 +87,11 @@ public class JDBCWriter {
     }
   }
 
-  private List<RecordField> extractFieldValues(List<Type> fields, Record record) {
+  private List<RecordField<?>> extractFieldValues(List<Type> fields, Record record) {
     return fields
         .stream()
         .reduce(new ArrayList<>(), (currentValues, currentField) -> {
-          RecordField result = record
+          RecordField<?> result = record
               .getField(currentField.getName())
               .orElse(createNullRecordField(currentField));
           currentValues.add(result);
@@ -100,11 +99,10 @@ public class JDBCWriter {
         }, (before, after) -> after);
   }
 
-  private RecordField createNullRecordField(Type currentField) {
-    RecordField<Object> recordField = new RecordField<>(currentField.getName(), null);
-    BiConsumer<ReadRecordConsumer, Object> objectRecordConsumer = ReadRecordConsumer::setObject;
-    recordField.addReadConsumer(objectRecordConsumer);
-
+  private RecordField<?> createNullRecordField(Type currentField) {
+    Consumer<ReadRecordConsumer> setNull = NullTypeConsumer.get(currentField);
+    RecordField<?> recordField = new RecordField<>(currentField.getName(), null);
+    recordField.addReadConsumer(((readRecordConsumer, o) -> setNull.accept(readRecordConsumer)));
     return recordField;
   }
 }

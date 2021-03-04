@@ -15,10 +15,8 @@
 package io.github.anthorx.parquet.sql.read;
 
 import io.github.anthorx.parquet.sql.utils.AssertionUtils;
-import org.apache.commons.lang.StringUtils;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
