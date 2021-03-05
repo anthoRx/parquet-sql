@@ -21,10 +21,10 @@ import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Types;
 import org.junit.jupiter.api.Test;
 
-import static junit.framework.Assert.assertTrue;
 import static org.apache.parquet.schema.LogicalTypeAnnotation.*;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.OPTIONAL;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SQLGroupConverterTest {
 

@@ -1,15 +1,12 @@
 package io.github.anthorx.parquet.sql.write;
 
-import io.github.anthorx.parquet.sql.read.SQLGroupConverter;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -17,11 +14,8 @@ import java.util.function.Consumer;
  */
 public class NullTypeConsumer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SQLGroupConverter.class);
-
   public static Consumer<ReadRecordConsumer> get(Type currentField) {
-
-    Optional<Consumer<ReadRecordConsumer>> result;
+    Optional<Integer> result;
 
     if (currentField.getLogicalTypeAnnotation() == null) {
       result = getNullTypeConsumerFromPrimitiveType(currentField);
@@ -29,70 +23,65 @@ public class NullTypeConsumer {
       result = getNullTypeConsumerFromLogicalType(currentField);
     }
 
-    return result.orElse((read) -> {
-      LOG.debug("No proper type found, falling back to generic setObject(null) which may cause performance issue");
-      read.setObject(null);
-    });
+    return result
+        .map((type) -> (Consumer<ReadRecordConsumer>) read -> read.setNull(type))
+        .orElse((read) -> read.setObject(null));
   }
 
-  private static Optional<Consumer<ReadRecordConsumer>> setNullConsumer(int type) {
-    return Optional.of((read) -> read.setNull(type));
-  }
-
-  private static Optional<Consumer<ReadRecordConsumer>> getNullTypeConsumerFromLogicalType(Type currentField) {
-    return currentField.getLogicalTypeAnnotation().accept(new LogicalTypeAnnotation.LogicalTypeAnnotationVisitor<Consumer<ReadRecordConsumer>>() {
+  protected static Optional<Integer> getNullTypeConsumerFromLogicalType(Type currentField) {
+    return currentField.getLogicalTypeAnnotation().accept(new LogicalTypeAnnotation.LogicalTypeAnnotationVisitor<Integer>() {
       @Override
-      public Optional<Consumer<ReadRecordConsumer>> visit(LogicalTypeAnnotation.StringLogicalTypeAnnotation logicalType) {
-        return setNullConsumer(Types.VARCHAR);
+      public Optional<Integer> visit(LogicalTypeAnnotation.StringLogicalTypeAnnotation logicalType) {
+        return Optional.of(Types.VARCHAR);
       }
 
       @Override
-      public Optional<Consumer<ReadRecordConsumer>> visit(LogicalTypeAnnotation.TimestampLogicalTypeAnnotation logicalType) {
-        return setNullConsumer(Types.TIMESTAMP);
+      public Optional<Integer> visit(LogicalTypeAnnotation.TimestampLogicalTypeAnnotation logicalType) {
+        return Optional.of(Types.TIMESTAMP);
       }
 
       @Override
-      public Optional<Consumer<ReadRecordConsumer>> visit(LogicalTypeAnnotation.DateLogicalTypeAnnotation logicalType) {
-        return setNullConsumer(Types.DATE);
+      public Optional<Integer> visit(LogicalTypeAnnotation.DateLogicalTypeAnnotation logicalType) {
+        return Optional.of(Types.DATE);
       }
 
       @Override
-      public Optional<Consumer<ReadRecordConsumer>> visit(LogicalTypeAnnotation.IntLogicalTypeAnnotation logicalType) {
-        return setNullConsumer(Types.NUMERIC);
+      public Optional<Integer> visit(LogicalTypeAnnotation.IntLogicalTypeAnnotation logicalType) {
+        return Optional.of(Types.NUMERIC);
       }
 
       @Override
-      public Optional<Consumer<ReadRecordConsumer>> visit(LogicalTypeAnnotation.DecimalLogicalTypeAnnotation logicalType) {
-        return setNullConsumer(Types.DECIMAL);
+      public Optional<Integer> visit(LogicalTypeAnnotation.DecimalLogicalTypeAnnotation logicalType) {
+        return Optional.of(Types.DECIMAL);
       }
     });
   }
 
-  private static Optional<Consumer<ReadRecordConsumer>> getNullTypeConsumerFromPrimitiveType(Type parquetField) {
+  protected static Optional<Integer> getNullTypeConsumerFromPrimitiveType(Type parquetField) {
     PrimitiveType primitiveType = parquetField.asPrimitiveType();
-    Optional<Consumer<ReadRecordConsumer>> result = Optional.empty();
+    Optional<Integer> result = Optional.empty();
 
     switch (primitiveType.getPrimitiveTypeName()) {
       case DOUBLE:
-        result = setNullConsumer(Types.DECIMAL);
+        result = Optional.of(Types.DECIMAL);
         break;
       case FLOAT:
-        result = setNullConsumer(Types.FLOAT);
+        result = Optional.of(Types.FLOAT);
         break;
       case BOOLEAN:
-        result = setNullConsumer(Types.BOOLEAN);
+        result = Optional.of(Types.BOOLEAN);
         break;
       case INT32:
-        result = setNullConsumer(Types.INTEGER);
+        result = Optional.of(Types.INTEGER);
         break;
       case INT64:
-        result = setNullConsumer(Types.NUMERIC);
+        result = Optional.of(Types.NUMERIC);
         break;
       // According to Spark's code (SQLConf.PARQUET_OUTPUT_TIMESTAMP_TYPE and ParquetWriteSupport), default Parquet format used for timestamp is INT96
       // INT96 is not standard and is only used for timestamp
       // Still the case on Spark 3.0.0
       case INT96:
-        result = setNullConsumer(Types.TIMESTAMP);
+        result = Optional.of(Types.TIMESTAMP);
         break;
     }
     return result;

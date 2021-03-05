@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.util.TimeZone;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TimestampConverterTest {
 

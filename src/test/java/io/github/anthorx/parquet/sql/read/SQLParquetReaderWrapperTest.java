@@ -30,9 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SQLParquetReaderWrapperTest {
 

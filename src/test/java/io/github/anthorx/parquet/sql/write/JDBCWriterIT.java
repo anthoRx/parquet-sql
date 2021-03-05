@@ -3,6 +3,7 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -43,9 +44,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Robert");
-    Assertions.assertEquals(result.getInt(column2), 7);
-    Assertions.assertEquals(result.getString(column3), "Testing");
+    assertEquals(result.getString(column1), "Robert");
+    assertEquals(result.getInt(column2), 7);
+    assertEquals(result.getString(column3), "Testing");
   }
 
   @Test
@@ -57,9 +58,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Paul");
-    Assertions.assertEquals(result.getInt(column2), 4);
-    Assertions.assertNull(result.getString(column3));
+    assertEquals(result.getString(column1), "Paul");
+    assertEquals(result.getInt(column2), 4);
+    assertNull(result.getString(column3));
   }
 
   @Test
@@ -71,9 +72,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Patrick");
-    Assertions.assertNull(result.getObject(column2));
-    Assertions.assertEquals(result.getString(column3), "Null int!");
+    assertEquals(result.getString(column1), "Patrick");
+    assertNull(result.getObject(column2));
+    assertEquals(result.getString(column3), "Null int!");
   }
 
   @Test
@@ -85,7 +86,7 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getInt(1), 3);
+    assertEquals(result.getInt(1), 3);
   }
 
 

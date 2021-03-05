@@ -1,6 +1,5 @@
 package io.github.anthorx.parquet.sql.read;
 
-import junit.framework.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +45,7 @@ public class RecordConsumerInitializerTest {
 
     String expected = "insert  into " + tableName + "(brand,color,price) values (?,?,?)";
 
-    Assert.assertEquals(expected, result);
+    Assertions.assertEquals(expected, result);
   }
 
   @Test
@@ -56,7 +54,7 @@ public class RecordConsumerInitializerTest {
     String result = init.insertQueryBuilder(Arrays.asList("brand", "color", "price"));
     String expected = "insert /*+ APPEND_VALUES */ into " + tableName + "(brand,color,price) values (?,?,?)";
 
-    Assert.assertEquals(expected, result);
+    Assertions.assertEquals(expected, result);
   }
 
 
@@ -67,7 +65,7 @@ public class RecordConsumerInitializerTest {
     PreparedStatementRecordConsumer recordConsumer = initializer.initialize(Arrays.asList("brand", "color", "price"));
 
     Mockito.verify(connection).prepareStatement("insert  into car(brand,color,price) values (?,?,?)");
-    Assert.assertNotNull(recordConsumer);
+    Assertions.assertNotNull(recordConsumer);
   }
 
   @Test
