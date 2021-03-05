@@ -9,10 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
-/** create the Consumer that calls ReadRecordConsumer.setNull with the proper type */
+/**
+ * create the Consumer that calls ReadRecordConsumer.setNull with the proper type
+ */
 public class NullTypeConsumer {
 
   private static final Logger LOG = LoggerFactory.getLogger(SQLGroupConverter.class);

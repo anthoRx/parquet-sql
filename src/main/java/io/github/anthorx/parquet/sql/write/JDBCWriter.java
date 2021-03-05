@@ -93,7 +93,7 @@ public class JDBCWriter {
         .reduce(new ArrayList<>(), (currentValues, currentField) -> {
           RecordField<?> result = record
               .getField(currentField.getName())
-              .orElse(createNullRecordField(currentField));
+              .orElseGet(() -> createNullRecordField(currentField));
           currentValues.add(result);
           return currentValues;
         }, (before, after) -> after);
