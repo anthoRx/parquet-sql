@@ -189,5 +189,6 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   @Override
   public void close() throws SQLException {
     this.preparedStatement.close();
+    this.preparedStatement.getConnection().close();
   }
 }
