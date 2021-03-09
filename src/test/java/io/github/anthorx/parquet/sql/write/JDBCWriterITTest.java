@@ -2,12 +2,16 @@ package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import org.h2.jdbcx.JdbcConnectionPool;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JDBCWriterITTest {
 
