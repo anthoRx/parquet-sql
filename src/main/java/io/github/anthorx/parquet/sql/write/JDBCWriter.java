@@ -93,7 +93,7 @@ public class JDBCWriter {
    * extract recordField from record or create nullRecordField
    *
    * @param schemaField the required fields
-   * @param record    the record
+   * @param record      the record
    * @return the full recordFields
    */
   private List<RecordField<?>> extractRecordField(List<Type> schemaField, Record record) {
