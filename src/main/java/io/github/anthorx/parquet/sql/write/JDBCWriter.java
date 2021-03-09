@@ -18,7 +18,6 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
-import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.hadoop.conf.Configuration;
@@ -26,9 +25,10 @@ import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JDBCWriter {
 
@@ -60,13 +60,13 @@ public class JDBCWriter {
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
     List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
-    List<Type> fields = parquetReaderWrapper.getFields();
+    List<Type> schemaFields = parquetReaderWrapper.getFields();
     Record record = parquetReaderWrapper.read();
 
     if (record != null) {
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          List<RecordField<?>> fieldsValues = extractFieldValues(fields, record);
+          List<RecordField<?>> fieldsValues = extractRecordField(schemaFields, record);
           fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
@@ -87,22 +87,26 @@ public class JDBCWriter {
     }
   }
 
-  private List<RecordField<?>> extractFieldValues(List<Type> fields, Record record) {
-    return fields
-        .stream()
-        .reduce(new ArrayList<>(), (currentValues, currentField) -> {
-          RecordField<?> result = record
-              .getField(currentField.getName())
-              .orElseGet(() -> createNullRecordField(currentField));
-          currentValues.add(result);
-          return currentValues;
-        }, (before, after) -> after);
-  }
+  /**
+   * extract the recordField from a record
+   * and create NullRecordField for missing fields from <code>allFields</code>
+   *
+   * @param allFields the required fields
+   * @param record the record
+   * @return the full recordFields
+   */
+  private List<RecordField<?>> extractRecordField(List<Type> allFields, Record record) {
 
-  private RecordField<?> createNullRecordField(Type currentField) {
-    Consumer<ReadRecordConsumer> setNull = NullTypeConsumer.get(currentField);
-    RecordField<?> recordField = new RecordField<>(currentField.getName(), null);
-    recordField.addReadConsumer(((readRecordConsumer, o) -> setNull.accept(readRecordConsumer)));
-    return recordField;
+    List<RecordField<?>> result = record.getFields();
+
+    Stream<String> presentFieldNames = record.getFields().stream().map(RecordField::getName);
+
+    List<RecordField<?>> missingFields = allFields.stream()
+        .filter(missingType -> presentFieldNames.noneMatch(name -> name.equals(missingType.getName())))
+        .map(NullRecordFieldConstructor::newNullRecordField).collect(Collectors.toCollection(Vector::new));
+
+    result.addAll(missingFields);
+
+    return result;
   }
 }

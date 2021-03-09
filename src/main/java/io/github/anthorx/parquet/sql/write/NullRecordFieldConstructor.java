@@ -1,6 +1,7 @@
 package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
+import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
@@ -9,12 +10,21 @@ import java.sql.Types;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * create the Consumer that calls ReadRecordConsumer.setNull with the proper type
- */
-public class NullTypeConsumer {
+public class NullRecordFieldConstructor {
 
-  public static Consumer<ReadRecordConsumer> get(Type currentField) {
+  /**
+   * Create RecordField with null value for a given type
+   */
+  public static RecordField<?> newNullRecordField(Type currentField) {
+    RecordField<?> result = new RecordField<>(currentField.getName(), null);
+
+    Consumer<ReadRecordConsumer> consumer = NullRecordFieldConstructor.getConverter(currentField);
+    result.addReadConsumer(((readRecordConsumer, o) -> consumer.accept(readRecordConsumer)));
+
+    return result;
+  }
+
+  private static Consumer<ReadRecordConsumer> getConverter(Type currentField) {
     Optional<Integer> result;
 
     if (currentField.getLogicalTypeAnnotation() == null) {

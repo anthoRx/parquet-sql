@@ -16,7 +16,7 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NullTypeConsumerTest {
+public class NullRecordFieldConstructorTest {
 
   private static Type primitiveType(PrimitiveTypeName primitiveTypeName) {
     return new PrimitiveType(Type.Repetition.OPTIONAL, primitiveTypeName, "defaultName");
@@ -49,7 +49,7 @@ public class NullTypeConsumerTest {
   @Test
   public void testPrimitiveGet() {
     primitiveInputExpected.forEach((input, expected) -> {
-      Optional<Integer> maybeActual = NullTypeConsumer.getNullTypeConsumerFromPrimitiveType(input);
+      Optional<Integer> maybeActual = NullRecordFieldConstructor.getNullTypeConsumerFromPrimitiveType(input);
       assertTrue(maybeActual.isPresent());
       Integer actual = maybeActual.get();
       assertEquals(expected, actual);
@@ -59,7 +59,7 @@ public class NullTypeConsumerTest {
   @Test
   public void testLogicalGet() {
     logicalInputExpected.forEach((input, expected) -> {
-      Optional<Integer> maybeActual = NullTypeConsumer.getNullTypeConsumerFromLogicalType(input);
+      Optional<Integer> maybeActual = NullRecordFieldConstructor.getNullTypeConsumerFromLogicalType(input);
       assertTrue(maybeActual.isPresent());
       Integer actual = maybeActual.get();
       assertEquals(expected, actual);
