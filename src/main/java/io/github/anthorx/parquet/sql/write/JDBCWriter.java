@@ -18,7 +18,6 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.PreparedStatementRecordConsumer;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
-import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import org.apache.hadoop.conf.Configuration;
@@ -26,9 +25,9 @@ import org.apache.parquet.schema.Type;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class JDBCWriter {
 
@@ -49,7 +48,6 @@ public class JDBCWriter {
     this.batchSize = batchSize;
   }
 
-
   public int getBatchSize() {
     return batchSize;
   }
@@ -61,13 +59,13 @@ public class JDBCWriter {
   public void write() throws IOException, SQLException {
     int nbRecordInBatch = 0;
     List<String> fieldsNames = parquetReaderWrapper.getFieldsNames();
-    List<Type> fields = parquetReaderWrapper.getFields();
+    List<Type> schemaFields = parquetReaderWrapper.getFields();
     Record record = parquetReaderWrapper.read();
 
     if (record != null) {
       try (PreparedStatementRecordConsumer recordConsumer = lazyRecordConsumerInitializer.initialize(fieldsNames)) {
         do {
-          List<RecordField> fieldsValues = extractFieldValues(fields, record);
+          List<RecordField<?>> fieldsValues = extractRecordField(schemaFields, record);
           fieldsValues.forEach(field -> field.applyReadConsumer(recordConsumer));
 
           recordConsumer.addBatch();
@@ -88,23 +86,18 @@ public class JDBCWriter {
     }
   }
 
-  private List<RecordField> extractFieldValues(List<Type> fields, Record record) {
-    return fields
-        .stream()
-        .reduce(new ArrayList<>(), (currentValues, currentField) -> {
-          RecordField result = record
-              .getField(currentField.getName())
-              .orElse(createNullRecordField(currentField));
-          currentValues.add(result);
-          return currentValues;
-        }, (before, after) -> after);
-  }
-
-  private RecordField createNullRecordField(Type currentField) {
-    RecordField<Object> recordField = new RecordField<>(currentField.getName(), null);
-    BiConsumer<ReadRecordConsumer, Object> objectRecordConsumer = ReadRecordConsumer::setObject;
-    recordField.addReadConsumer(objectRecordConsumer);
-
-    return recordField;
+  /**
+   * based on schemaField,
+   * extract recordField from record or create nullRecordField
+   *
+   * @param schemaField the required fields
+   * @param record      the record
+   * @return the full recordFields
+   */
+  private List<RecordField<?>> extractRecordField(List<Type> schemaField, Record record) {
+    return schemaField.stream().map(type -> record
+        .getField(type.getName())
+        .orElseGet(() -> NullRecordFieldConstructor.newNullRecordField(type)))
+        .collect(Collectors.toCollection(Vector::new));
   }
 }

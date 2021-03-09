@@ -21,7 +21,6 @@ import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-import junit.framework.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,8 +31,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -45,4 +45,7 @@ public interface ReadRecordConsumer {
   void setTimestamp(Timestamp value);
 
   void setObject(Object value);
+
+  /** java.sql.Types id */
+  void setNull(int typeId);
 }

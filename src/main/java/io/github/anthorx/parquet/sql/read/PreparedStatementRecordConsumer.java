@@ -19,10 +19,7 @@ import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.utils.AssertionUtils;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +48,7 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   }
 
   public void executeBatch() throws SQLException {
-    this.preparedStatement.executeBatch();
+    this.preparedStatement.executeLargeBatch();
   }
 
   private int getNextIndex() {
@@ -181,7 +178,18 @@ public class PreparedStatementRecordConsumer implements ReadRecordConsumer, Auto
   }
 
   @Override
+  public void setNull(int typeId) {
+    try {
+      this.preparedStatement.setNull(getNextIndex(), typeId);
+    } catch (SQLException e) {
+      addError(e);
+    }
+  }
+
+  @Override
   public void close() throws SQLException {
+    Connection connection = this.preparedStatement.getConnection();
     this.preparedStatement.close();
+    connection.close();
   }
 }

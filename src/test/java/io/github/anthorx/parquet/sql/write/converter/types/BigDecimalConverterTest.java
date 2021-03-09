@@ -4,9 +4,7 @@ import io.github.anthorx.parquet.sql.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.model.SQLField;
 import io.github.anthorx.parquet.sql.record.RecordField;
 import io.github.anthorx.parquet.sql.write.converter.ConvertException;
-import junit.framework.Assert;
 import org.apache.parquet.io.api.Binary;
-import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.junit.jupiter.api.Test;
@@ -14,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.stream.IntStream;
 
-import static junit.framework.Assert.*;
-import static junit.framework.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BigDecimalConverterTest {
 

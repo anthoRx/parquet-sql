@@ -2,14 +2,20 @@ package io.github.anthorx.parquet.sql.write;
 
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import org.h2.jdbcx.JdbcConnectionPool;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-public class JDBCWriterIT {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-  private final static JdbcConnectionPool cp = JdbcConnectionPool.create("jdbc:h2:~/test", "sa", "sa");
+public class JDBCWriterITTest {
+
+  private final static JdbcConnectionPool cp = JdbcConnectionPool.create("jdbc:h2:~/test.db", "sa", "sa");
   private static RecordConsumerInitializer recordConsumerInitializer;
   private static Connection connection;
   private static String tableName = "myTable";
@@ -43,9 +49,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Robert");
-    Assertions.assertEquals(result.getInt(column2), 7);
-    Assertions.assertEquals(result.getString(column3), "Testing");
+    assertEquals(result.getString(column1), "Robert");
+    assertEquals(result.getInt(column2), 7);
+    assertEquals(result.getString(column3), "Testing");
   }
 
   @Test
@@ -57,9 +63,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Paul");
-    Assertions.assertEquals(result.getInt(column2), 4);
-    Assertions.assertNull(result.getString(column3));
+    assertEquals(result.getString(column1), "Paul");
+    assertEquals(result.getInt(column2), 4);
+    assertNull(result.getString(column3));
   }
 
   @Test
@@ -71,9 +77,9 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT * FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getString(column1), "Patrick");
-    Assertions.assertNull(result.getObject(column2));
-    Assertions.assertEquals(result.getString(column3), "Null int!");
+    assertEquals(result.getString(column1), "Patrick");
+    assertNull(result.getObject(column2));
+    assertEquals(result.getString(column3), "Null int!");
   }
 
   @Test
@@ -85,7 +91,7 @@ public class JDBCWriterIT {
 
     ResultSet result = connection.prepareStatement("SELECT count(*) FROM " + tableName).executeQuery();
     result.next();
-    Assertions.assertEquals(result.getInt(1), 3);
+    assertEquals(result.getInt(1), 3);
   }
 
 
