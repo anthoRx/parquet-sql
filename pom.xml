@@ -59,51 +59,85 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>${targetJavaVersion}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- libraries -->
+        <parquet-hadoop.version>1.11.0</parquet-hadoop.version>
+        <hadoop-core.version>1.2.1</hadoop-core.version>
+
+        <!-- tests -->
+        <mockito.version>3.8.0</mockito.version>
+        <junit-jupiter.version>5.6.2</junit-jupiter.version>
+        <h2.version>1.4.200</h2.version>
+
+        <!-- plugins -->
         <version.plugin.source>3.2.1</version.plugin.source>
         <version.plugin.javadoc>3.2.0</version.plugin.javadoc>
         <version.plugin.gpg>1.6</version.plugin.gpg>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <hamcrest-library.version>2.2</hamcrest-library.version>
     </properties>
 
     <dependencies>
+        <!-- libraries -->
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-hadoop</artifactId>
-            <version>1.11.0</version>
+            <version>${parquet-hadoop.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
-            <version>1.2.1</version>
+            <version>${hadoop-core.version}</version>
+            <!-- exclude junit4 because this project use junit5 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- tests -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest-library.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.6.2</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>2.2</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.3.3</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.3.3</version>
+            <version>${mockito.version}</version>
+            <!-- exclude junit5 because this project use its own junit5 version -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -126,7 +160,7 @@
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${maven-surefire-plugin.version}</version>
             </plugin>
 
             <plugin>

@@ -3,14 +3,15 @@ package io.github.anthorx.parquet.sql.write;
 import io.github.anthorx.parquet.sql.read.RecordConsumerInitializer;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-public class JDBCWriterIT {
+import static org.junit.jupiter.api.Assertions.*;
 
-  private final static JdbcConnectionPool cp = JdbcConnectionPool.create("jdbc:h2:~/test", "sa", "sa");
+public class JDBCWriterITTest {
+
+  private final static JdbcConnectionPool cp = JdbcConnectionPool.create("jdbc:h2:~/test.db", "sa", "sa");
   private static RecordConsumerInitializer recordConsumerInitializer;
   private static Connection connection;
   private static String tableName = "myTable";

@@ -21,7 +21,6 @@ import io.github.anthorx.parquet.sql.read.SQLParquetReaderWrapper;
 import io.github.anthorx.parquet.sql.record.ReadRecordConsumer;
 import io.github.anthorx.parquet.sql.record.Record;
 import io.github.anthorx.parquet.sql.record.RecordField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

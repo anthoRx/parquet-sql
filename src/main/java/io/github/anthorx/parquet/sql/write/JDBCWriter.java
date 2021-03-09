@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,25 +89,17 @@ public class JDBCWriter {
   }
 
   /**
-   * extract the recordField from a record
-   * and create NullRecordField for missing fields from <code>allFields</code>
+   * based on schemaField,
+   * extract recordField from record or create nullRecordField
    *
-   * @param allFields the required fields
-   * @param record the record
+   * @param schemaField the required fields
+   * @param record    the record
    * @return the full recordFields
    */
-  private List<RecordField<?>> extractRecordField(List<Type> allFields, Record record) {
-
-    List<RecordField<?>> result = record.getFields();
-
-    Stream<String> presentFieldNames = record.getFields().stream().map(RecordField::getName);
-
-    List<RecordField<?>> missingFields = allFields.stream()
-        .filter(missingType -> presentFieldNames.noneMatch(name -> name.equals(missingType.getName())))
-        .map(NullRecordFieldConstructor::newNullRecordField).collect(Collectors.toCollection(Vector::new));
-
-    result.addAll(missingFields);
-
-    return result;
+  private List<RecordField<?>> extractRecordField(List<Type> schemaField, Record record) {
+    return schemaField.stream().map(type -> record
+        .getField(type.getName())
+        .orElseGet(() -> NullRecordFieldConstructor.newNullRecordField(type)))
+        .collect(Collectors.toCollection(Vector::new));
   }
 }
