@@ -18,22 +18,38 @@ package io.github.anthorx.parquet.sql.model;
 import io.github.anthorx.parquet.sql.write.converter.ConvertException;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class SQLRowFactory {
 
-  public static SQLRow createSQLRow(ResultSet rs) throws SQLException, ConvertException {
-    int nbColumns = rs.getMetaData().getColumnCount();
+  private final SQLField[] columns;
+  private final int columnCount;
+
+  /**
+   * An instance represents a table
+   */
+  public SQLRowFactory(ResultSetMetaData metaData) throws SQLException {
+    columnCount = metaData.getColumnCount();
+
+    columns = new SQLField[columnCount];
+    for (int index = 1; index <= columnCount; index++) {
+      columns[index - 1] = new SQLField(
+          metaData.getColumnName(index),
+          null,
+          metaData.getColumnType(index),
+          metaData.getPrecision(index),
+          metaData.getScale(index),
+          metaData.getColumnClassName(index));
+    }
+  }
+
+  public SQLRow createSQLRow(ResultSet rs) throws SQLException {
+
     SQLRow row = new SQLRow();
 
-    for (int index = 1; index <= nbColumns; index++) {
-      SQLField sqlField = new SQLField(
-          rs.getMetaData().getColumnName(index),
-          rs.getObject(index),
-          rs.getMetaData().getColumnType(index),
-          rs.getMetaData().getPrecision(index),
-          rs.getMetaData().getScale(index),
-          rs.getMetaData().getColumnClassName(index));
+    for (int index = 1; index <= columnCount; index++) {
+      SQLField sqlField = columns[index - 1].copy(rs.getObject(index));
 
       row.addField(sqlField);
     }

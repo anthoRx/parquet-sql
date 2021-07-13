@@ -36,20 +36,20 @@ public class SQLField {
   }
 
   public SQLField(String name, Object value, int sqlType, String columnClassName) {
-    this.name = name;
-    this.value = value;
-    this.sqlType = sqlType;
-    this.columnClassName = columnClassName;
-    this.precision = Optional.empty();
-    this.scale = Optional.empty();
+    this(name, value, sqlType, Optional.empty(), Optional.empty(), columnClassName);
   }
 
   public SQLField(String name, Object value, int sqlType, int precision, int scale, String columnClassName) {
+    this(name, value, sqlType, Optional.of(precision), Optional.of(scale), columnClassName);
+  }
+
+  private SQLField(String name, Object value, int sqlType, Optional<Integer> precision, Optional<Integer> scale,
+                   String columnClassName) {
     this.name = name;
     this.value = value;
     this.sqlType = sqlType;
-    this.precision = Optional.of(precision);
-    this.scale = Optional.of(scale);
+    this.precision = precision;
+    this.scale = scale;
     this.columnClassName = columnClassName;
   }
 
@@ -87,5 +87,17 @@ public class SQLField {
         ", scale=" + scale +
         ", columnClassName='" + columnClassName + '\'' +
         '}';
+  }
+
+  public SQLField copy(Object object) {
+    return new SQLField(
+        this.name,
+        object,
+        this.sqlType,
+        this.precision,
+        this.scale,
+        this.columnClassName
+    );
+
   }
 }
