@@ -30,5 +30,4 @@ public class AssertionUtils {
       throw new IllegalArgumentException(message);
     }
   }
-
 }
