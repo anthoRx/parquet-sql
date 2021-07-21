@@ -15,7 +15,7 @@
 
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
 
 import java.util.function.Consumer;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  */
 public class FieldBooleanConverter extends FieldConverter<Boolean> {
 
-  public FieldBooleanConverter(Consumer<ParquetRecordField<Boolean>> f, String fieldName) {
+  public FieldBooleanConverter(Consumer<RecordField<Boolean>> f, String fieldName) {
     super(f, fieldName, ReadRecordConsumer::setBoolean);
   }
 

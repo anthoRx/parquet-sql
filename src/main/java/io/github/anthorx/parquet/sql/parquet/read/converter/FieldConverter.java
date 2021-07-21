@@ -15,7 +15,7 @@
 
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
 import org.apache.parquet.io.api.PrimitiveConverter;
 import org.apache.parquet.schema.PrimitiveType;
@@ -25,16 +25,16 @@ import java.util.function.Consumer;
 
 public abstract class FieldConverter<T> extends PrimitiveConverter {
 
-  protected final Consumer<ParquetRecordField<T>> f;
+  protected final Consumer<RecordField<T>> f;
   protected final String fieldName;
   protected final BiConsumer<ReadRecordConsumer, T> readRecordConsumerFunction;
   protected final PrimitiveType primitiveType;
 
-  public FieldConverter(Consumer<ParquetRecordField<T>> f, String fieldName, BiConsumer<ReadRecordConsumer, T> readRecordConsumerFunction) {
+  public FieldConverter(Consumer<RecordField<T>> f, String fieldName, BiConsumer<ReadRecordConsumer, T> readRecordConsumerFunction) {
     this(f, fieldName, null, readRecordConsumerFunction);
   }
 
-  public FieldConverter(Consumer<ParquetRecordField<T>> f, String fieldName, PrimitiveType primitiveType, BiConsumer<ReadRecordConsumer, T> readRecordConsumerFunction) {
+  public FieldConverter(Consumer<RecordField<T>> f, String fieldName, PrimitiveType primitiveType, BiConsumer<ReadRecordConsumer, T> readRecordConsumerFunction) {
     this.f = f;
     this.fieldName = fieldName;
     this.primitiveType = primitiveType;
@@ -42,8 +42,8 @@ public abstract class FieldConverter<T> extends PrimitiveConverter {
   }
 
   protected void acceptNewReadRecordFromValue(T value) {
-    ParquetRecordField<T> parquetRecordField = new ParquetRecordField<>(fieldName, value)
+    RecordField<T> recordField = new RecordField<>(fieldName, value)
         .addReadConsumer(readRecordConsumerFunction);
-    f.accept(parquetRecordField);
+    f.accept(recordField);
   }
 }

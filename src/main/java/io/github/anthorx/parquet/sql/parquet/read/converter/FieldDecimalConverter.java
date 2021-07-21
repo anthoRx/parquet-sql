@@ -15,7 +15,7 @@
 
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.PrimitiveType;
@@ -33,7 +33,7 @@ public class FieldDecimalConverter extends FieldConverter<BigDecimal> {
 
   private final int scale;
 
-  public FieldDecimalConverter(Consumer<ParquetRecordField<BigDecimal>> f, String fieldName, PrimitiveType primitiveType) {
+  public FieldDecimalConverter(Consumer<RecordField<BigDecimal>> f, String fieldName, PrimitiveType primitiveType) {
     super(f, fieldName, primitiveType, ReadRecordConsumer::setBigDecimal);
     this.scale = primitiveType.getDecimalMetadata().getScale();
   }

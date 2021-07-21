@@ -19,27 +19,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ParquetRecord {
+public class Record {
 
-  List<ParquetRecordField<?>> fields = new ArrayList<>();
+  private final List<RecordField<?>> fields = new ArrayList<>();
 
-  public ParquetRecord() {
+  public Record() {
   }
 
-  public <T> void addField(ParquetRecordField<T> field) {
+  public <T> void addField(RecordField<T> field) {
     fields.add(field);
   }
 
-  public List<ParquetRecordField<?>> getFields() {
+  public List<RecordField<?>> getFields() {
     return fields;
   }
 
 
-  public ParquetRecordField<?> getField(int index) {
+  public RecordField<?> getField(int index) {
     return fields.get(index);
   }
 
-  public Optional<ParquetRecordField<?>> getField(String name) {
+  public Optional<RecordField<?>> getField(String name) {
     return fields
         .stream()
         .filter(rr -> rr.getName().equals(name))

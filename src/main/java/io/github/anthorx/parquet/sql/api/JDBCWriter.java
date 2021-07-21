@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.api;
 
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
-import org.springframework.util.Assert;
+import org.eclipse.jdt.internal.core.Assert;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -27,7 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.util.Assert.notNull;
+import static io.github.anthorx.parquet.sql.util.AssertionUtils.notEmpty;
+import static io.github.anthorx.parquet.sql.util.AssertionUtils.notNull;
 
 /**
  * use a prepareStatement to do batch executions on JDBC writer
@@ -51,15 +52,13 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
    * Otherwise for default behavior just provide datasource
    */
   public JDBCWriter(PreparedStatement preparedStatement) {
-    Assert.notNull(preparedStatement, "A valid PreparedStatement is required for PreparedStatementRecordConsumer.");
-
     this.preparedStatement = preparedStatement;
     this.errors = new ArrayList<>();
   }
 
   protected static String prepareStatementQuery(String tableName, Collection<String> columnNames) throws IllegalArgumentException {
     notNull(tableName, "tableName cannot be null");
-    Assert.notEmpty(columnNames, "columnNames cannot be empty");
+    notEmpty(columnNames, "columnNames cannot be empty");
 
     String formattedColumns = columnNames
         .stream()

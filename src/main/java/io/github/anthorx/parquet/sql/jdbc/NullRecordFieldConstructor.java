@@ -1,6 +1,6 @@
 package io.github.anthorx.parquet.sql.jdbc;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
@@ -14,8 +14,8 @@ public class NullRecordFieldConstructor {
   /**
    * Create RecordField with null value for a given type
    */
-  public static ParquetRecordField<?> newNullRecordField(Type currentField) {
-    ParquetRecordField<?> result = new ParquetRecordField<>(currentField.getName(), null);
+  public static RecordField<?> newNullRecordField(Type currentField) {
+    RecordField<?> result = new RecordField<>(currentField.getName(), null);
 
     Consumer<ReadRecordConsumer> consumer = NullRecordFieldConstructor.getConverter(currentField);
     result.addReadConsumer(((readRecordConsumer, o) -> consumer.accept(readRecordConsumer)));

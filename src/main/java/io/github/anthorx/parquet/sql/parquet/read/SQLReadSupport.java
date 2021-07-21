@@ -15,7 +15,7 @@
 
 package io.github.anthorx.parquet.sql.parquet.read;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.InitContext;
 import org.apache.parquet.hadoop.api.ReadSupport;
@@ -24,7 +24,7 @@ import org.apache.parquet.schema.MessageType;
 
 import java.util.Map;
 
-public class SQLReadSupport extends ReadSupport<ParquetRecord> {
+public class SQLReadSupport extends ReadSupport<Record> {
 
   @Override
   public ReadContext init(InitContext context) {
@@ -32,7 +32,7 @@ public class SQLReadSupport extends ReadSupport<ParquetRecord> {
   }
 
   @Override
-  public RecordMaterializer<ParquetRecord> prepareForRead(Configuration configuration, Map<String, String> keyValueMetaData, MessageType fileSchema, ReadContext readContext) {
+  public RecordMaterializer<Record> prepareForRead(Configuration configuration, Map<String, String> keyValueMetaData, MessageType fileSchema, ReadContext readContext) {
     return new SQLRecordMaterializer(fileSchema);
   }
 }

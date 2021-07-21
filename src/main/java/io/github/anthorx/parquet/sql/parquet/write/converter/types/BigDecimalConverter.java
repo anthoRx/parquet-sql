@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
@@ -38,7 +38,7 @@ public class BigDecimalConverter implements ParquetSQLConverter {
     }
 
     @Override
-    public ParquetRecordField<?> convert(SQLField sqlField) throws ConvertException {
+    public RecordField<?> convert(SQLField sqlField) throws ConvertException {
         int checkedPrecision = sqlField
                 .getPrecision()
                 .filter(p -> p > 0)
@@ -46,15 +46,15 @@ public class BigDecimalConverter implements ParquetSQLConverter {
         BigDecimal bd = (BigDecimal) sqlField.getValue();
 
         if (checkedPrecision <= 9) {
-            return new ParquetRecordField<>(sqlField.getName(), bd.intValue())
+            return new RecordField<>(sqlField.getName(), bd.intValue())
                 .addWriteConsumer(RecordConsumer::addInteger);
         } else if (checkedPrecision <= 18) {
-            return new ParquetRecordField<>(sqlField.getName(), bd.longValue())
+            return new RecordField<>(sqlField.getName(), bd.longValue())
                 .addWriteConsumer(RecordConsumer::addLong);
         } else {
             byte[] bdBytes = bd.unscaledValue().toByteArray();
             Binary binaryArray = Binary.fromReusedByteArray(bdBytes);
-            return new ParquetRecordField<>(sqlField.getName(), binaryArray)
+            return new RecordField<>(sqlField.getName(), binaryArray)
                 .addWriteConsumer(RecordConsumer::addBinary);
         }
     }

@@ -15,9 +15,9 @@
 
 package io.github.anthorx.parquet.sql.parquet.read;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.parquet.read.converter.*;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -37,11 +37,11 @@ public class SQLGroupConverter extends GroupConverter {
 
   private static final Logger LOG = LoggerFactory.getLogger(SQLGroupConverter.class);
 
-  private ParquetRecord currentSQLRowRead;
+  private Record currentSQLRowRead;
   private final Converter[] converters;
 
   public SQLGroupConverter(MessageType parquetSchema) {
-    this.currentSQLRowRead = new ParquetRecord();
+    this.currentSQLRowRead = new Record();
     this.converters = new Converter[parquetSchema.getFieldCount()];
 
     int parquetFieldIndex = 0;
@@ -51,7 +51,7 @@ public class SQLGroupConverter extends GroupConverter {
     }
   }
 
-  public ParquetRecord getCurrentSQLRowRead() {
+  public Record getCurrentSQLRowRead() {
     return this.currentSQLRowRead;
   }
 
@@ -63,7 +63,7 @@ public class SQLGroupConverter extends GroupConverter {
   @Override
   public void start() {
     LOG.debug("Start converting a new row with " + this.getClass().getSimpleName());
-    currentSQLRowRead = new ParquetRecord();
+    currentSQLRowRead = new Record();
   }
 
   @Override
@@ -105,36 +105,36 @@ public class SQLGroupConverter extends GroupConverter {
     return logicalTypeAnnotation.accept(new LogicalTypeAnnotation.LogicalTypeAnnotationVisitor<Converter>() {
       @Override
       public Optional<Converter> visit(LogicalTypeAnnotation.StringLogicalTypeAnnotation logicalType) {
-        Consumer<ParquetRecordField<String>> f = (ParquetRecordField<String> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<String>> f = (RecordField<String> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         return Optional.of(new FieldStringConverter(f, fieldName));
       }
 
       @Override
       public Optional<Converter> visit(LogicalTypeAnnotation.TimestampLogicalTypeAnnotation logicalType) {
-        Consumer<ParquetRecordField<Timestamp>> f = (ParquetRecordField<Timestamp> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Timestamp>> f = (RecordField<Timestamp> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         return Optional.of(new FieldTimestampConverter(f, fieldName));
       }
 
       @Override
       public Optional<Converter> visit(LogicalTypeAnnotation.DateLogicalTypeAnnotation logicalType) {
-        Consumer<ParquetRecordField<Date>> f = (ParquetRecordField<Date> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Date>> f = (RecordField<Date> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         return Optional.of(new FieldDateConverter(f, fieldName));
       }
 
       @Override
       public Optional<Converter> visit(LogicalTypeAnnotation.IntLogicalTypeAnnotation logicalType) {
         if (logicalType.getBitWidth() == 64) {
-          Consumer<ParquetRecordField<Long>> f = (ParquetRecordField<Long> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+          Consumer<RecordField<Long>> f = (RecordField<Long> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
           return Optional.of(new FieldLongConverter(f, fieldName));
         } else {
-          Consumer<ParquetRecordField<Integer>> f = (ParquetRecordField<Integer> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+          Consumer<RecordField<Integer>> f = (RecordField<Integer> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
           return Optional.of(new FieldIntegerConverter(f, fieldName));
         }
       }
 
       @Override
       public Optional<Converter> visit(LogicalTypeAnnotation.DecimalLogicalTypeAnnotation logicalType) {
-        Consumer<ParquetRecordField<BigDecimal>> f = (ParquetRecordField<BigDecimal> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<BigDecimal>> f = (RecordField<BigDecimal> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         return Optional.of(new FieldDecimalConverter(f, fieldName, parquetField.asPrimitiveType()));
       }
     });
@@ -153,30 +153,30 @@ public class SQLGroupConverter extends GroupConverter {
 
     switch (primitiveType.getPrimitiveTypeName()) {
       case DOUBLE:
-        Consumer<ParquetRecordField<Double>> fDouble = (ParquetRecordField<Double> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Double>> fDouble = (RecordField<Double> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldDoubleConverter(fDouble, fieldName));
         break;
       case FLOAT:
-        Consumer<ParquetRecordField<Float>> fFloat = (ParquetRecordField<Float> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Float>> fFloat = (RecordField<Float> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldFloatConverter(fFloat, fieldName));
         break;
       case BOOLEAN:
-        Consumer<ParquetRecordField<Boolean>> fBool = (ParquetRecordField<Boolean> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Boolean>> fBool = (RecordField<Boolean> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldBooleanConverter(fBool, fieldName));
         break;
       case INT32:
-        Consumer<ParquetRecordField<Integer>> fint = (ParquetRecordField<Integer> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Integer>> fint = (RecordField<Integer> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldIntegerConverter(fint, fieldName));
         break;
       case INT64:
-        Consumer<ParquetRecordField<Long>> flong = (ParquetRecordField<Long> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Long>> flong = (RecordField<Long> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldLongConverter(flong, fieldName));
         break;
       // According to Spark's code (SQLConf.PARQUET_OUTPUT_TIMESTAMP_TYPE and ParquetWriteSupport), default Parquet format used for timestamp is INT96
       // INT96 is not standard and is only used for timestamp
       // Still the case on Spark 3.0.0
       case INT96:
-        Consumer<ParquetRecordField<Timestamp>> fTsp = (ParquetRecordField<Timestamp> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
+        Consumer<RecordField<Timestamp>> fTsp = (RecordField<Timestamp> recordField) -> SQLGroupConverter.this.currentSQLRowRead.addField(recordField);
         converter = Optional.of(new FieldTimestampConverter(fTsp, fieldName));
         break;
     }

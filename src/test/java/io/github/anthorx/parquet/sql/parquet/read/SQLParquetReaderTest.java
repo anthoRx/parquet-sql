@@ -16,8 +16,8 @@
 package io.github.anthorx.parquet.sql.parquet.read;
 
 import io.github.anthorx.parquet.sql.api.SQLParquetReader;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.hadoop.conf.Configuration;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -43,25 +43,25 @@ public class SQLParquetReaderTest {
 
     SQLParquetReader sqlParquetReader = new SQLParquetReader(filePath, new Configuration());
 
-    ParquetRecord parquetRecord = sqlParquetReader.read();
+    Record record = sqlParquetReader.read();
 
-    assertField("timestamp", parquetRecord, Timestamp.valueOf("2019-02-04 00:00:00"));
-    assertField("date", parquetRecord, Date.valueOf("2019-01-17"));
-    assertField("bd_8_3", parquetRecord, new BigDecimal("88.333").setScale(3));
-    assertField("bd_10_5", parquetRecord, new BigDecimal("1111.2222").setScale(5));
-    assertField("bd_10_0", parquetRecord, new BigDecimal("10.0").setScale(0));
-    assertField("bd_20_12", parquetRecord, new BigDecimal("111.9999999999").setScale(12));
-    assertField("bd_38_18", parquetRecord, new BigDecimal("1111.2222").setScale(18));
-    assertField("float", parquetRecord, new Float("11.22"));
-    assertField("double", parquetRecord, new Double("11.22"));
-    assertField("string", parquetRecord, "a string");
-    assertField("int", parquetRecord, 5);
-    assertField("bool", parquetRecord, true);
+    assertField("timestamp", record, Timestamp.valueOf("2019-02-04 00:00:00"));
+    assertField("date", record, Date.valueOf("2019-01-17"));
+    assertField("bd_8_3", record, new BigDecimal("88.333").setScale(3));
+    assertField("bd_10_5", record, new BigDecimal("1111.2222").setScale(5));
+    assertField("bd_10_0", record, new BigDecimal("10.0").setScale(0));
+    assertField("bd_20_12", record, new BigDecimal("111.9999999999").setScale(12));
+    assertField("bd_38_18", record, new BigDecimal("1111.2222").setScale(18));
+    assertField("float", record, new Float("11.22"));
+    assertField("double", record, new Double("11.22"));
+    assertField("string", record, "a string");
+    assertField("int", record, 5);
+    assertField("bool", record, true);
   }
 
 
-  private <T> void assertField(String fieldName, ParquetRecord parquetRecord, T expectedValue) {
-    Optional<ParquetRecordField<?>> field = parquetRecord.getField(fieldName);
+  private <T> void assertField(String fieldName, Record record, T expectedValue) {
+    Optional<RecordField<?>> field = record.getField(fieldName);
 
     assertTrue(field.isPresent());
 

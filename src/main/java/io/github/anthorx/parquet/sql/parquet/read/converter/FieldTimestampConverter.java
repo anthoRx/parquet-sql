@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.parquet.io.api.Binary;
 
 import java.nio.ByteBuffer;
@@ -39,7 +39,7 @@ public class FieldTimestampConverter extends FieldConverter<Timestamp> {
   final long MILLIS_PER_SECOND = 1000L;
   final long NANOS_PER_MILLIS = 1000000L;
 
-  public FieldTimestampConverter(Consumer<ParquetRecordField<Timestamp>> f, String fieldName) {
+  public FieldTimestampConverter(Consumer<RecordField<Timestamp>> f, String fieldName) {
     super(f, fieldName, ReadRecordConsumer::setTimestamp);
   }
 

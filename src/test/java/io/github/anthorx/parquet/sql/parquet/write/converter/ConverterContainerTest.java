@@ -2,7 +2,7 @@ package io.github.anthorx.parquet.sql.parquet.write.converter;
 
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.types.ParquetSQLConverter;
 import org.apache.parquet.schema.PrimitiveType;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class ConverterContainerTest {
     }
 
     @Override
-    public ParquetRecordField<?> convert(SQLField sqlField) throws ConvertException {
+    public RecordField<?> convert(SQLField sqlField) throws ConvertException {
       return null;
     }
 

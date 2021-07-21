@@ -20,7 +20,7 @@ import org.apache.parquet.io.api.RecordConsumer;
 
 import java.util.function.BiConsumer;
 
-public class ParquetRecordField<T> {
+public class RecordField<T> {
   private final String name;
 
   private final T value;
@@ -31,7 +31,7 @@ public class ParquetRecordField<T> {
   // Function used to read the field from a parquet file
   private BiConsumer<ReadRecordConsumer, T> readConsumer;
 
-  public ParquetRecordField(String name, T value) {
+  public RecordField(String name, T value) {
     this.name = name;
     this.value = value;
   }
@@ -44,23 +44,23 @@ public class ParquetRecordField<T> {
     return value;
   }
 
-  public ParquetRecordField<T> addWriteConsumer(BiConsumer<RecordConsumer, T> writeConsumer) {
+  public RecordField<T> addWriteConsumer(BiConsumer<RecordConsumer, T> writeConsumer) {
     this.writeConsumer = writeConsumer;
     return this;
   }
 
-  public ParquetRecordField<T> addReadConsumer(BiConsumer<ReadRecordConsumer, T> readConsumer) {
+  public RecordField<T> addReadConsumer(BiConsumer<ReadRecordConsumer, T> readConsumer) {
     this.readConsumer = readConsumer;
     return this;
   }
 
-  public void applyWriteConsumer(RecordConsumer r) {
+  public void write(RecordConsumer r) {
     if (writeConsumer != null) {
       writeConsumer.accept(r, value);
     }
   }
 
-  public void applyReadConsumer(ReadRecordConsumer r) {
+  public void read(ReadRecordConsumer r) {
     if (readConsumer != null) {
       readConsumer.accept(r, value);
     }

@@ -1,6 +1,6 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
@@ -18,9 +18,9 @@ public class DoubleConverter implements ParquetSQLConverter {
     }
 
     @Override
-    public ParquetRecordField<?> convert(SQLField sqlField) throws ConvertException {
+    public RecordField<?> convert(SQLField sqlField) throws ConvertException {
         BigDecimal bigDecimal = (BigDecimal) sqlField.getValue();
-        return new ParquetRecordField<>(sqlField.getName(), bigDecimal.doubleValue())
+        return new RecordField<>(sqlField.getName(), bigDecimal.doubleValue())
             .addWriteConsumer(RecordConsumer::addDouble);
     }
 

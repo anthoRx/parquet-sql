@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.parquet.io.api.Binary;
 
 import java.util.function.Consumer;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  */
 public class FieldStringConverter extends FieldConverter<String> {
 
-  public FieldStringConverter(Consumer<ParquetRecordField<String>> f, String fieldName) {
+  public FieldStringConverter(Consumer<RecordField<String>> f, String fieldName) {
     super(f, fieldName, ReadRecordConsumer::setString);
   }
 

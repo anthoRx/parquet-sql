@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.api;
 
 import io.github.anthorx.parquet.sql.parquet.read.SQLReadSupport;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -39,9 +39,9 @@ import java.util.stream.Collectors;
 
 public class SQLParquetReader {
 
-  private final Iterator<ParquetReader<ParquetRecord>> parquetReaderIterator;
+  private final Iterator<ParquetReader<Record>> parquetReaderIterator;
   private final Configuration configuration;
-  private ParquetReader<ParquetRecord> currentParquetReader;
+  private ParquetReader<Record> currentParquetReader;
   private MessageType schema;
 
   public SQLParquetReader(String stringFilePath, Configuration configuration) throws IOException {
@@ -57,9 +57,9 @@ public class SQLParquetReader {
     }
   }
 
-  private Iterator<ParquetReader<ParquetRecord>> createReadersFromFolderAndInitSchema(FileSystem fileSystem, Path filePath,
-                                                                                      Configuration configuration) throws IOException {
-    List<ParquetReader<ParquetRecord>> parquetReaderList = new ArrayList<>();
+  private Iterator<ParquetReader<Record>> createReadersFromFolderAndInitSchema(FileSystem fileSystem, Path filePath,
+                                                                               Configuration configuration) throws IOException {
+    List<ParquetReader<Record>> parquetReaderList = new ArrayList<>();
     for (FileStatus currentFileStatus : fileSystem.listStatus(filePath, HiddenFileFilter.INSTANCE)) {
       InputFile currentInputFile = HadoopInputFile.fromStatus(currentFileStatus, configuration);
 
@@ -67,16 +67,16 @@ public class SQLParquetReader {
         this.initFileSchema(currentInputFile);
       }
 
-      ParquetReader.Builder<ParquetRecord> builder = new SQLParquetReader.Builder(currentInputFile);
+      ParquetReader.Builder<Record> builder = new SQLParquetReader.Builder(currentInputFile);
       parquetReaderList.add(builder.build());
     }
 
     return parquetReaderList.iterator();
   }
 
-  private Iterator<ParquetReader<ParquetRecord>> createReadersFromFileAndInitSchema(FileStatus fileStatus, Configuration configuration) throws IOException {
+  private Iterator<ParquetReader<Record>> createReadersFromFileAndInitSchema(FileStatus fileStatus, Configuration configuration) throws IOException {
     InputFile inputFile = HadoopInputFile.fromStatus(fileStatus, configuration);
-    ParquetReader.Builder<ParquetRecord> recordParquetReader = new SQLParquetReader.Builder(inputFile);
+    ParquetReader.Builder<Record> recordParquetReader = new SQLParquetReader.Builder(inputFile);
 
     this.initFileSchema(inputFile);
     return Collections.singletonList(recordParquetReader.build()).iterator();
@@ -94,12 +94,12 @@ public class SQLParquetReader {
     return schema;
   }
 
-  public ParquetRecord read() throws IOException {
+  public Record read() throws IOException {
     if (currentParquetReader == null) {
       return readFromNextParquetReader();
     }
 
-    ParquetRecord result = currentParquetReader.read();
+    Record result = currentParquetReader.read();
 
     if (result == null) {
       return readFromNextParquetReader();
@@ -108,7 +108,7 @@ public class SQLParquetReader {
     return result;
   }
 
-  private ParquetRecord readFromNextParquetReader() throws IOException {
+  private Record readFromNextParquetReader() throws IOException {
     if (parquetReaderIterator.hasNext()) {
       currentParquetReader = parquetReaderIterator.next();
       return currentParquetReader.read();
@@ -130,18 +130,18 @@ public class SQLParquetReader {
         .getFields();
   }
 
-  public static class Builder extends ParquetReader.Builder<ParquetRecord> {
+  public static class Builder extends ParquetReader.Builder<Record> {
 
     protected Builder(InputFile file) {
       super(file);
     }
 
-    protected ReadSupport<ParquetRecord> getReadSupport() {
+    protected ReadSupport<Record> getReadSupport() {
       return new SQLReadSupport();
     }
 
     @Override
-    public ParquetReader<ParquetRecord> build() throws IOException {
+    public ParquetReader<Record> build() throws IOException {
       return super.build();
     }
   }

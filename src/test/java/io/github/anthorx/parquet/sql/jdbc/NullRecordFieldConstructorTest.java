@@ -17,7 +17,7 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NullParquetParquetRecordFieldConstructorTest {
+public class NullRecordFieldConstructorTest {
 
   private static Type primitiveType(PrimitiveTypeName primitiveTypeName) {
     return new PrimitiveType(Type.Repetition.OPTIONAL, primitiveTypeName, "defaultName");

@@ -15,12 +15,12 @@
 
 package io.github.anthorx.parquet.sql.parquet.read;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
 
-public class SQLRecordMaterializer extends RecordMaterializer<ParquetRecord> {
+public class SQLRecordMaterializer extends RecordMaterializer<Record> {
 
   private final SQLGroupConverter sqlGroupConverter;
 
@@ -29,7 +29,7 @@ public class SQLRecordMaterializer extends RecordMaterializer<ParquetRecord> {
   }
 
   @Override
-  public ParquetRecord getCurrentRecord() {
+  public Record getCurrentRecord() {
     return sqlGroupConverter.getCurrentSQLRowRead();
   }
 

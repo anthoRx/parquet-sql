@@ -16,7 +16,7 @@
 package io.github.anthorx.parquet.sql.parquet.write;
 
 import io.github.anthorx.parquet.sql.jdbc.model.SQLRow;
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecord;
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConverterContainer;
 import io.github.anthorx.parquet.sql.parquet.write.converter.RecordsConverter;
@@ -59,7 +59,7 @@ public class SQLWriteSupport extends WriteSupport<SQLRow> {
   @Override
   public void write(SQLRow row) {
     try {
-      ParquetRecord records = new RecordsConverter(converterContainer).convert(row);
+      Record records = new RecordsConverter(converterContainer).convert(row);
       recordConsumer.startMessage();
       writeRecords(records);
       recordConsumer.endMessage();
@@ -68,13 +68,13 @@ public class SQLWriteSupport extends WriteSupport<SQLRow> {
     }
   }
 
-  private void writeRecords(ParquetRecord records) {
+  private void writeRecords(Record records) {
     IntStream
         .range(0, records.getFields().size())
         .forEach(index -> {
           if (records.getField(index).isNotNull()) {
             recordConsumer.startField(records.getField(index).getName(), index);
-            records.getField(index).applyWriteConsumer(recordConsumer);
+            records.getField(index).write(recordConsumer);
             recordConsumer.endField(records.getField(index).getName(), index);
           }
         });

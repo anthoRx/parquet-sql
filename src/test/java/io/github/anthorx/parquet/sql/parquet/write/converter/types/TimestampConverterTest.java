@@ -1,6 +1,6 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ public class TimestampConverterTest {
   public void convertUtcTimestamp() {
     TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
     SQLField field = new SQLField("tsp", new Timestamp(refUtcTimestamp));
-    ParquetRecordField<?> record = converter.convert(field);
+    RecordField<?> record = converter.convert(field);
 
     assertTrue(record.getValue() instanceof Long);
     long resultTsp = (Long) record.getValue();
@@ -35,7 +35,7 @@ public class TimestampConverterTest {
   public void convertGMTPlus2Timestamp() {
     TimeZone.setDefault(TimeZone.getTimeZone("Etc/GMT+2"));
     SQLField field = new SQLField("tsp", new Timestamp(refUtcTimestamp));
-    ParquetRecordField<?> record = converter.convert(field);
+    RecordField<?> record = converter.convert(field);
 
     assertTrue(record.getValue() instanceof Long);
     long resultTsp = (Long) record.getValue();
@@ -49,7 +49,7 @@ public class TimestampConverterTest {
   public void convertGMTMinus2Timestamp() {
     TimeZone.setDefault(TimeZone.getTimeZone("Etc/GMT-2"));
     SQLField field = new SQLField("tsp", new Timestamp(refUtcTimestamp));
-    ParquetRecordField<?> record = converter.convert(field);
+    RecordField<?> record = converter.convert(field);
 
     assertTrue(record.getValue() instanceof Long);
     long resultTsp = (Long) record.getValue();

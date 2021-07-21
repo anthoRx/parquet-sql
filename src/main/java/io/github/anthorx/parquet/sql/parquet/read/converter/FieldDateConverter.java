@@ -15,7 +15,7 @@
 
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
 
 import java.sql.Date;
@@ -30,7 +30,7 @@ public class FieldDateConverter extends FieldConverter<Date> {
 
   private final long MILLIS_PER_DAY = 86400000;
 
-  public FieldDateConverter(Consumer<ParquetRecordField<Date>> f, String fieldName) {
+  public FieldDateConverter(Consumer<RecordField<Date>> f, String fieldName) {
     super(f, fieldName, ReadRecordConsumer::setDate);
   }
 

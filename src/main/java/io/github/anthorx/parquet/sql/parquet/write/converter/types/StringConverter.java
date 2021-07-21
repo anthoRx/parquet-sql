@@ -1,6 +1,6 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
@@ -18,7 +18,7 @@ public class StringConverter implements ParquetSQLConverter {
     }
 
     @Override
-    public ParquetRecordField<?> convert(SQLField sqlField) throws ConvertException {
+    public RecordField<?> convert(SQLField sqlField) throws ConvertException {
         String value;
         if (sqlField.getValue() instanceof char[]) {
             value = new String((char[]) sqlField.getValue());
@@ -26,7 +26,7 @@ public class StringConverter implements ParquetSQLConverter {
             value = (String) sqlField.getValue();
         }
         Binary binaryString = Binary.fromString(value);
-        return new ParquetRecordField<>(sqlField.getName(), binaryString)
+        return new RecordField<>(sqlField.getName(), binaryString)
             .addWriteConsumer(RecordConsumer::addBinary);
     }
 

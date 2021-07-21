@@ -1,6 +1,6 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.ParquetRecordField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
@@ -24,7 +24,7 @@ public class BigDecimalConverterTest {
             try {
                 String name = "aname";
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
-                ParquetRecordField<?> record = converter.convert(field);
+                RecordField<?> record = converter.convert(field);
 
                 assertTrue(record.getValue() instanceof Long);
                 assertEquals(name, record.getName());
@@ -42,7 +42,7 @@ public class BigDecimalConverterTest {
             try {
                 String name = "aname";
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
-                ParquetRecordField<?> record = converter.convert(field);
+                RecordField<?> record = converter.convert(field);
 
                 assertTrue(record.getValue() instanceof Integer);
                 assertEquals(name, record.getName());
@@ -60,7 +60,7 @@ public class BigDecimalConverterTest {
             try {
                 String name = "aname";
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
-                ParquetRecordField<?> record = converter.convert(field);
+                RecordField<?> record = converter.convert(field);
 
                 assertTrue(record.getValue() instanceof Long);
                 assertEquals(name, record.getName());
@@ -78,7 +78,7 @@ public class BigDecimalConverterTest {
             try {
                 String name = "aname";
                 SQLField field = new SQLField(name, new BigDecimal("1.0"), 1, i, 0, "java.math.BigDecimal");
-                ParquetRecordField<?> record = converter.convert(field);
+                RecordField<?> record = converter.convert(field);
 
                 assertTrue(record.getValue() instanceof Binary);
                 assertEquals(name, record.getName());
