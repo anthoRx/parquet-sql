@@ -15,15 +15,22 @@
 
 package io.github.anthorx.parquet.sql.parquet.model;
 
+import io.github.anthorx.parquet.sql.jdbc.NullRecordFieldConstructor;
+import org.apache.parquet.schema.Type;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class Record {
 
   private final List<RecordField<?>> fields = new ArrayList<>();
+  private final List<Type> schemaField;
 
-  public Record() {
+  public Record(List<Type> schemaField) {
+    this.schemaField = schemaField;
   }
 
   public <T> void addField(RecordField<T> field) {
@@ -44,6 +51,20 @@ public class Record {
         .stream()
         .filter(rr -> rr.getName().equals(name))
         .findFirst();
+  }
+
+  /**
+   * based on schemaField,
+   * extract recordField from record or create nullRecordField
+   *
+   * @return the full recordFields
+   */
+  public List<RecordField<?>> getRecordField() {
+    return schemaField.stream()
+        .map(type -> this
+            .getField(type.getName())
+            .orElseGet(() -> NullRecordFieldConstructor.newNullRecordField(type)))
+        .collect(Collectors.toCollection(Vector::new));
   }
 
   @Override

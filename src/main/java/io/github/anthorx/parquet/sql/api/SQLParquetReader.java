@@ -40,17 +40,15 @@ import java.util.stream.Collectors;
 public class SQLParquetReader {
 
   private final Iterator<ParquetReader<Record>> parquetReaderIterator;
-  private final Configuration configuration;
   private ParquetReader<Record> currentParquetReader;
   private MessageType schema;
 
   public SQLParquetReader(String stringFilePath, Configuration configuration) throws IOException {
-    this.configuration = configuration;
     Path filePath = new Path(stringFilePath);
     FileSystem fileSystem = filePath.getFileSystem(configuration);
     FileStatus fileStatus = fileSystem.getFileStatus(filePath);
 
-    if(fileStatus.isDir()) {
+    if (fileStatus.isDir()) {
       this.parquetReaderIterator = createReadersFromFolderAndInitSchema(fileSystem, filePath, configuration);
     } else {
       this.parquetReaderIterator = createReadersFromFileAndInitSchema(fileStatus, configuration);
