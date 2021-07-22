@@ -13,9 +13,8 @@
  *
  */
 
-package io.github.anthorx.parquet.sql.parquet.read;
+package io.github.anthorx.parquet.sql.api;
 
-import io.github.anthorx.parquet.sql.api.SQLParquetReader;
 import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.hadoop.conf.Configuration;

@@ -61,13 +61,13 @@ class JDBCReaderTest {
     doReturn(scale).when(resultSetMetaData).getScale(1);
     doReturn(className).when(resultSetMetaData).getColumnClassName(1);
 
-    jdbcReader = new JDBCReader(dataSource, "tableName", fetchSize);
+    jdbcReader = new JDBCReader(dataSource, tableName, fetchSize);
   }
 
   @Test
   void initialization_ok() throws SQLException {
     verify(dataSource).getConnection();
-    verify(connection).prepareStatement("select * from tableName");
+    verify(connection).prepareStatement("select * from " + tableName);
     verify(preparedStatement).executeQuery();
     verify(preparedStatement).setFetchSize(fetchSize);
     verify(resultSet).getMetaData();
@@ -80,7 +80,7 @@ class JDBCReaderTest {
   }
   @Test
   void getMetaData() throws SQLException {
-    // resultSet has already been called in jdbcReader constructor
+    // because resultSet has already been called in jdbcReader constructor
     reset(resultSet);
 
     jdbcReader.getMetaData();
