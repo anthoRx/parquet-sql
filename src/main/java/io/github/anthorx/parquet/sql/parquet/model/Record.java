@@ -27,11 +27,6 @@ import java.util.stream.Collectors;
 public class Record {
 
   private final List<RecordField<?>> fields = new ArrayList<>();
-  private final List<Type> schemaField;
-
-  public Record(List<Type> schemaField) {
-    this.schemaField = schemaField;
-  }
 
   public <T> void addField(RecordField<T> field) {
     fields.add(field);
@@ -59,7 +54,7 @@ public class Record {
    *
    * @return the full recordFields
    */
-  public List<RecordField<?>> getRecordField() {
+  public List<RecordField<?>> getRecordField(List<Type> schemaField) {
     return schemaField.stream()
         .map(type -> this
             .getField(type.getName())

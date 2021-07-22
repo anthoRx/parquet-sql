@@ -33,7 +33,7 @@ import static io.github.anthorx.parquet.sql.util.AssertionUtils.notNull;
 /**
  * use a prepareStatement to do batch executions on JDBC writer
  */
-public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
+public class JDBCWriter implements IJDBCWriter {
 
   private final PreparedStatement preparedStatement;
   private final List<String> errors;
@@ -69,6 +69,7 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
     return String.format("insert into %s%s values (%s)", tableName, formattedColumns, elem);
   }
 
+  @Override
   public void addBatch() throws SQLException {
     if (!errors.isEmpty()) {
       throw new SQLException("Errors when setting prepared statement. Details : " + errors);
@@ -80,6 +81,7 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
     }
   }
 
+  @Override
   public void executeBatch() throws SQLException {
     this.preparedStatement.executeLargeBatch();
   }
