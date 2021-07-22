@@ -20,7 +20,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 public interface ReadRecordConsumer {
-
   void setBoolean(boolean value);
 
   void setByte(byte value);

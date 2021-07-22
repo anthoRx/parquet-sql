@@ -16,7 +16,6 @@
 package io.github.anthorx.parquet.sql.api;
 
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
-import org.eclipse.jdt.internal.core.Assert;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -33,7 +32,11 @@ import static io.github.anthorx.parquet.sql.util.AssertionUtils.notNull;
 /**
  * use a prepareStatement to do batch executions on JDBC writer
  */
-public class JDBCWriter implements IJDBCWriter {
+public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
+
+  private interface SQLExceptionRunnable {
+    void run() throws SQLException;
+  }
 
   private final PreparedStatement preparedStatement;
   private final List<String> errors;
@@ -69,7 +72,6 @@ public class JDBCWriter implements IJDBCWriter {
     return String.format("insert into %s%s values (%s)", tableName, formattedColumns, elem);
   }
 
-  @Override
   public void addBatch() throws SQLException {
     if (!errors.isEmpty()) {
       throw new SQLException("Errors when setting prepared statement. Details : " + errors);
@@ -81,7 +83,6 @@ public class JDBCWriter implements IJDBCWriter {
     }
   }
 
-  @Override
   public void executeBatch() throws SQLException {
     this.preparedStatement.executeLargeBatch();
   }
@@ -94,131 +95,82 @@ public class JDBCWriter implements IJDBCWriter {
     errors.add("SQLState(" + e.getSQLState() + ") vendor code(" + e.getErrorCode() + ") : " + e.getMessage());
   }
 
-  @Override
-  public void setBoolean(boolean value) {
+  private void withException(SQLExceptionRunnable runnable) {
     try {
-      this.preparedStatement.setBoolean(getNextIndex(), value);
+      runnable.run();
     } catch (SQLException e) {
       addError(e);
     }
+  }
+
+  @Override
+  public void setBoolean(boolean value) {
+    withException(() -> this.preparedStatement.setBoolean(getNextIndex(), value));
   }
 
   @Override
   public void setByte(byte value) {
-    try {
-      this.preparedStatement.setByte(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setByte(getNextIndex(), value));
   }
 
   @Override
   public void setShort(short value) {
-    try {
-      this.preparedStatement.setShort(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setShort(getNextIndex(), value));
   }
 
   @Override
   public void setInt(int value) {
-    try {
-      this.preparedStatement.setInt(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setInt(getNextIndex(), value));
   }
 
   @Override
   public void setLong(long value) {
-    try {
-      this.preparedStatement.setLong(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setLong(getNextIndex(), value));
   }
 
   @Override
   public void setFloat(float value) {
-    try {
-      this.preparedStatement.setFloat(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setFloat(getNextIndex(), value));
   }
 
   @Override
   public void setDouble(double value) {
-    try {
-      this.preparedStatement.setDouble(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setDouble(getNextIndex(), value));
   }
 
   @Override
   public void setBigDecimal(BigDecimal value) {
-    try {
-      this.preparedStatement.setBigDecimal(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setBigDecimal(getNextIndex(), value));
   }
 
   @Override
   public void setString(String value) {
-    try {
-      this.preparedStatement.setString(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setString(getNextIndex(), value));
   }
 
   @Override
   public void setBytes(byte[] value) {
-    try {
-      this.preparedStatement.setBytes(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setBytes(getNextIndex(), value));
   }
 
   @Override
   public void setDate(Date value) {
-    try {
-      this.preparedStatement.setDate(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setDate(getNextIndex(), value));
   }
-
 
   @Override
   public void setTimestamp(Timestamp value) {
-    try {
-      this.preparedStatement.setTimestamp(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setTimestamp(getNextIndex(), value));
   }
 
   @Override
   public void setObject(Object value) {
-    try {
-      this.preparedStatement.setObject(getNextIndex(), value);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setObject(getNextIndex(), value));
   }
 
   @Override
   public void setNull(int typeId) {
-    try {
-      this.preparedStatement.setNull(getNextIndex(), typeId);
-    } catch (SQLException e) {
-      addError(e);
-    }
+    withException(() -> this.preparedStatement.setNull(getNextIndex(), typeId));
   }
 
   @Override
