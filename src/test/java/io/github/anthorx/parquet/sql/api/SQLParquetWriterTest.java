@@ -68,7 +68,7 @@ class SQLParquetWriterTest {
 
     assertThrows(IOException.class, builder::build);
   }
-  
+
   @Test
   void builder_oneColumn_ok() throws IOException, SQLException {
     // Given one column of type Boolean
