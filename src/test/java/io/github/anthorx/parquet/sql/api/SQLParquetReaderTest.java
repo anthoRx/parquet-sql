@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -90,7 +91,7 @@ public class SQLParquetReaderTest {
 
     List<String> expect = Arrays.asList("Paul", "Robert", "Patrick");
 
-    assertEquals(expect, actual);
+    assertEquals(expect, containsInAnyOrder(actual));
 
     // Then the last line returns null
     assertNull(sqlParquetReader.read());
@@ -111,7 +112,7 @@ public class SQLParquetReaderTest {
 
     List<String> expect = Arrays.asList("username", "value", "comment");
 
-    assertEquals(expect, actual);
+    assertEquals(expect, containsInAnyOrder(actual));
   }
 
   @Test
