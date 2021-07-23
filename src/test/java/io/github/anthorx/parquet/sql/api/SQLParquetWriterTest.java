@@ -22,8 +22,7 @@ import java.io.IOException;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
@@ -69,7 +68,7 @@ class SQLParquetWriterTest {
 
     assertThrows(IOException.class, builder::build);
   }
-
+  
   @Test
   void builder_oneColumn_ok() throws IOException, SQLException {
     // Given one column of type Boolean
@@ -80,6 +79,7 @@ class SQLParquetWriterTest {
     SQLParquetWriter.Builder builder = builder()
         .withSchema(schema, resultSetMetaData);
 
+    assertSame(builder, builder.self());
     assertAndClose(builder.build());
   }
 
@@ -120,6 +120,5 @@ class SQLParquetWriterTest {
     assertNotNull(build);
     build.close();
   }
-
 
 }
