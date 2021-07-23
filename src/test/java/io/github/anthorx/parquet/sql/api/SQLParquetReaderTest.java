@@ -19,7 +19,9 @@ import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.schema.Type;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,7 +32,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,9 +92,7 @@ public class SQLParquetReaderTest {
         (String) sqlParquetReader.read().getField("username").get().getValue()
     );
 
-    List<String> expect = Arrays.asList("Paul", "Robert", "Patrick");
-
-    assertEquals(expect, containsInAnyOrder(actual));
+    assertThat(actual, containsInAnyOrder("Patrick", "Paul", "Robert"));
 
     // Then the last line returns null
     assertNull(sqlParquetReader.read());
@@ -110,9 +111,7 @@ public class SQLParquetReaderTest {
 
     List<String> actual = sqlParquetReader.getFieldsNames();
 
-    List<String> expect = Arrays.asList("username", "value", "comment");
-
-    assertEquals(expect, containsInAnyOrder(actual));
+    assertThat(actual, containsInAnyOrder("username", "value", "comment"));
   }
 
   @Test
