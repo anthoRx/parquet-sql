@@ -53,7 +53,9 @@ public class MessageTypeConverter implements Converter<ResultSetMetaData, Messag
 
         Optional<ParquetSQLConverter> c = converterContainer
             .getConverter(sqlColumnDefinition.getColumnTypeName());
-        PrimitiveType primitiveType = c.orElseThrow(() -> new ConvertException("Can't found a converter for column " + sqlColumnDefinition.getName() + " of type " + sqlColumnDefinition.getColumnTypeName())).convert(sqlColumnDefinition);
+        PrimitiveType primitiveType = c
+            .orElseThrow(() -> new ConvertException("Can't found a converter for column " + sqlColumnDefinition.getName() + " of type " + sqlColumnDefinition.getColumnTypeName()))
+            .convert(sqlColumnDefinition);
         convertedTypes.add(primitiveType);
       }
     } catch (SQLException | ClassNotFoundException e) {

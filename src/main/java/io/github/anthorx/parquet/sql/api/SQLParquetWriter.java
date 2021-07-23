@@ -37,23 +37,11 @@ public class SQLParquetWriter extends ParquetWriter<SQLRow> {
 
   /**
    * Constructor for retrocompatibility only. Use the builder rather than this constructor.
-   *
-   * @param file
-   * @param writeSupport
-   * @param compressionCodecName
-   * @param blockSize
-   * @param pageSize
-   * @param enableDictionary
-   * @param enableValidation
-   * @param writerVersion
-   * @param conf
-   * @throws IOException
    */
   @Deprecated
   SQLParquetWriter(Path file, WriteSupport<SQLRow> writeSupport, CompressionCodecName compressionCodecName, int blockSize, int pageSize, boolean enableDictionary, boolean enableValidation, ParquetProperties.WriterVersion writerVersion, Configuration conf) throws IOException {
     super(file, writeSupport, compressionCodecName, blockSize, pageSize, pageSize, enableDictionary, enableValidation, writerVersion, conf);
   }
-
 
   public static SQLParquetWriter.Builder builder(String file) {
     return new SQLParquetWriter.Builder(new Path(file));

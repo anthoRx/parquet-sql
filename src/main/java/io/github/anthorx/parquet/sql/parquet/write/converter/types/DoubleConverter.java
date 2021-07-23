@@ -27,8 +27,8 @@ public class DoubleConverter implements ParquetSQLConverter {
     @Override
     public PrimitiveType convert(SQLColumnDefinition sqlColumnDefinition) throws ConvertException {
         return PrimitiveTypeCreator.create(sqlColumnDefinition.getName(),
-                PrimitiveType.PrimitiveTypeName.DOUBLE,
-                null,
-                sqlColumnDefinition.isNullable());
+            PrimitiveType.PrimitiveTypeName.DOUBLE,
+            null,
+            sqlColumnDefinition.isNullable());
     }
 }
