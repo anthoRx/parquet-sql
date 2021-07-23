@@ -1,9 +1,9 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLRow;
 import io.github.anthorx.parquet.sql.parquet.model.Record;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.parquet.io.api.RecordConsumer;
 
 import java.util.function.BiConsumer;

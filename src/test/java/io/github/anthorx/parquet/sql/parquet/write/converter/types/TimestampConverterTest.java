@@ -1,7 +1,7 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;

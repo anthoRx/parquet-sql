@@ -1,6 +1,5 @@
 package io.github.anthorx.parquet.sql.jdbc;
 
-import io.github.anthorx.parquet.sql.jdbc.NullRecordFieldConstructor;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;

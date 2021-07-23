@@ -1,8 +1,8 @@
 package io.github.anthorx.parquet.sql.parquet.write.converter.types;
 
-import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLColumnDefinition;
 import io.github.anthorx.parquet.sql.jdbc.model.SQLField;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.parquet.write.converter.ConvertException;
 import io.github.anthorx.parquet.sql.parquet.write.converter.PrimitiveTypeCreator;
 import org.apache.parquet.io.api.Binary;

@@ -15,8 +15,8 @@
 
 package io.github.anthorx.parquet.sql.parquet.read.converter;
 
-import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
+import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.parquet.io.api.PrimitiveConverter;
 import org.apache.parquet.schema.PrimitiveType;
 

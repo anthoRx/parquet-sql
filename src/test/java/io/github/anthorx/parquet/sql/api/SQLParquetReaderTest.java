@@ -18,7 +18,7 @@ package io.github.anthorx.parquet.sql.api;
 import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.hadoop.conf.Configuration;
-import org.hamcrest.CoreMatchers;
+import org.apache.parquet.schema.Type;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,17 +30,37 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test a scenario case
+ */
 public class SQLParquetReaderTest {
 
-  @Test
-  public void convertParquetFileWithMultipleTypes() throws IOException {
-    String filePath = getClass().getResource("/test.parquet").getPath();
+  private <T> void assertField(String fieldName, Record record, T expectedValue) {
+    Optional<RecordField<?>> field = record.getField(fieldName);
 
-    SQLParquetReader sqlParquetReader = new SQLParquetReader(filePath, new Configuration());
+    assertTrue(field.isPresent());
+
+    if (expectedValue instanceof Date) {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+      String expected = df.format((Date) expectedValue);
+      String actual = df.format((Date) field.get().getValue());
+      assertEquals(expected, actual);
+    } else {
+      assertEquals(expectedValue, field.get().getValue());
+    }
+  }
+
+  private SQLParquetReader parquetReader(String path) throws IOException {
+    String filePath = getClass().getResource(path).getPath();
+
+    return new SQLParquetReader(filePath, new Configuration());
+  }
+
+  @Test
+  public void readingParquetFile() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/test.parquet");
 
     Record record = sqlParquetReader.read();
 
@@ -58,29 +78,48 @@ public class SQLParquetReaderTest {
     assertField("bool", record, true);
   }
 
+  @Test
+  public void readingParquetFolder() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/test");
 
-  private <T> void assertField(String fieldName, Record record, T expectedValue) {
-    Optional<RecordField<?>> field = record.getField(fieldName);
+    List<String> actual = Arrays.asList(
+        (String) sqlParquetReader.read().getField("username").get().getValue(),
+        (String) sqlParquetReader.read().getField("username").get().getValue(),
+        (String) sqlParquetReader.read().getField("username").get().getValue()
+    );
 
-    assertTrue(field.isPresent());
+    List<String> expect = Arrays.asList("Paul", "Robert", "Patrick");
 
-    if (expectedValue instanceof Date) {
-      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-      String expected = df.format((Date) expectedValue);
-      String actual = df.format((Date) field.get().getValue());
-      assertEquals(expected, actual);
-    } else {
-      assertEquals(expectedValue, field.get().getValue());
-    }
+    assertEquals(expect, actual);
+
+    // Then the last line returns null
+    assertNull(sqlParquetReader.read());
   }
 
   @Test
-  public void shouldSuccessReadSchemaSingleFile() throws IOException {
-    String filePath = getClass().getResource("/test/part-00000-965fa2b7-87eb-40a5-853c-681c34cd733e-c000.snappy.parquet").getPath();
-    SQLParquetReader sqlParquetReader = new SQLParquetReader(filePath, new Configuration());
+  public void getSchema() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/test");
 
-    List<String> columns = sqlParquetReader.getFieldsNames();
+    assertNotNull(sqlParquetReader.getSchema());
+  }
 
-    assertThat(columns, CoreMatchers.is(Arrays.asList("username", "value", "comment")));
+  @Test
+  public void getFieldsNames() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/test");
+
+    List<String> actual = sqlParquetReader.getFieldsNames();
+
+    List<String> expect = Arrays.asList("username", "value", "comment");
+
+    assertEquals(expect, actual);
+  }
+
+  @Test
+  public void getFields() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/test");
+
+    List<Type> actual = sqlParquetReader.getFields();
+
+    assertNotNull(actual);
   }
 }

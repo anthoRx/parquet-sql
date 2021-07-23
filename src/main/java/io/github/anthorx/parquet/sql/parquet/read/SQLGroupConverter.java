@@ -15,9 +15,9 @@
 
 package io.github.anthorx.parquet.sql.parquet.read;
 
+import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import io.github.anthorx.parquet.sql.parquet.read.converter.*;
-import io.github.anthorx.parquet.sql.parquet.model.Record;
 import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;

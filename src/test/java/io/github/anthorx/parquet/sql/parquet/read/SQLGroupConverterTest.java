@@ -15,7 +15,6 @@
 
 package io.github.anthorx.parquet.sql.parquet.read;
 
-import io.github.anthorx.parquet.sql.parquet.read.SQLGroupConverter;
 import io.github.anthorx.parquet.sql.parquet.read.converter.*;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
