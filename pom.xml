@@ -67,7 +67,6 @@
         <!-- tests -->
         <mockito.version>3.8.0</mockito.version>
         <junit-jupiter.version>5.6.2</junit-jupiter.version>
-        <h2.version>1.4.200</h2.version>
 
         <!-- plugins -->
         <version.plugin.source>3.2.1</version.plugin.source>
@@ -131,13 +130,6 @@
                     <artifactId>junit-jupiter-api</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
