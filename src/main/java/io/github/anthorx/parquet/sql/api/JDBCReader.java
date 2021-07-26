@@ -28,8 +28,7 @@ public class JDBCReader implements AutoCloseable {
   private final PreparedStatement preparedStatement;
   private final ResultSet resultSet;
 
-  public JDBCReader(DataSource dataSource, String tableName, int fetchSize) throws SQLException {
-    Connection connection = dataSource.getConnection();
+  public JDBCReader(Connection connection, String tableName, int fetchSize) throws SQLException {
 
     preparedStatement = createPrepareStatement(connection, tableName, fetchSize);
     resultSet = preparedStatement.executeQuery();

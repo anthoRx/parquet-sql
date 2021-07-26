@@ -16,6 +16,8 @@
 package io.github.anthorx.parquet.sql.parquet.model;
 
 import io.github.anthorx.parquet.sql.jdbc.NullRecordFieldConstructor;
+import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
+import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.Type;
 
 import java.util.ArrayList;
@@ -49,17 +51,16 @@ public class Record {
   }
 
   /**
-   * based on schemaField,
-   * extract recordField from record or create nullRecordField
-   *
-   * @return the full recordFields
+   * read all the recordField in the schema order
+   * @param schemaField used to define the record field order
+   * @param readRecordConsumer the consumer used to consume the record fields
    */
-  public List<RecordField<?>> getRecordField(List<Type> schemaField) {
-    return schemaField.stream()
+  public void readAll(List<Type> schemaField, ReadRecordConsumer readRecordConsumer) {
+    schemaField.stream()
         .map(type -> this
             .getField(type.getName())
             .orElseGet(() -> NullRecordFieldConstructor.newNullRecordField(type)))
-        .collect(Collectors.toCollection(Vector::new));
+        .forEach(recordField -> recordField.read(readRecordConsumer));
   }
 
   @Override

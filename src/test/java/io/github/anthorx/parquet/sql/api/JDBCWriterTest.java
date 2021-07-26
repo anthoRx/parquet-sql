@@ -33,9 +33,8 @@ public class JDBCWriterTest {
 
   @BeforeEach
   public void jdbcWriter() throws SQLException {
-    doReturn(connection).when(dataSource).getConnection();
     doReturn(preparedStatement).when(connection).prepareStatement(anyString());
-    jdbcWriter = new JDBCWriter(dataSource, "tableName", Collections.singleton("column"));
+    jdbcWriter = new JDBCWriter(connection, "tableName", Collections.singleton("column"));
   }
 
   @Test
@@ -48,9 +47,9 @@ public class JDBCWriterTest {
   }
 
   @Test
-  public void JDBCWriter_whenNoField_throwsException() throws SQLException {
+  public void JDBCWriter_whenNoField_throwsException() {
     assertThrows(IllegalArgumentException.class, () -> {
-      new JDBCWriter(dataSource, "car", Collections.emptyList());
+      new JDBCWriter(connection, "car", Collections.emptyList());
     });
   }
 

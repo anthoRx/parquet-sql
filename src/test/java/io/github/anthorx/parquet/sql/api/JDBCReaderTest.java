@@ -50,7 +50,6 @@ class JDBCReaderTest {
   public void setup() throws SQLException {
     int fetchSize = 1;
 
-    doReturn(connection).when(dataSource).getConnection();
     doReturn(preparedStatement).when(connection).prepareStatement(anyString());
     doReturn(resultSet).when(preparedStatement).executeQuery();
     doReturn(resultSetMetaData).when(resultSet).getMetaData();
@@ -61,12 +60,11 @@ class JDBCReaderTest {
     doReturn(scale).when(resultSetMetaData).getScale(1);
     doReturn(className).when(resultSetMetaData).getColumnClassName(1);
 
-    jdbcReader = new JDBCReader(dataSource, tableName, fetchSize);
+    jdbcReader = new JDBCReader(connection, tableName, fetchSize);
   }
 
   @Test
   void initialization_ok() throws SQLException {
-    verify(dataSource).getConnection();
     verify(connection).prepareStatement("select * from " + tableName);
     verify(preparedStatement).executeQuery();
     verify(preparedStatement).setFetchSize(fetchSize);

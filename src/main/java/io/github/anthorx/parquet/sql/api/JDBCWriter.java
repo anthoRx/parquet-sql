@@ -46,8 +46,8 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
    * default constructor that should be used
    * If you want a custom prepare statement, use the other constructor
    */
-  public JDBCWriter(DataSource dataSource, String tableName, Collection<String> columnNames) throws SQLException, IllegalArgumentException {
-    this(dataSource.getConnection().prepareStatement(prepareStatementQuery(tableName, columnNames)));
+  public JDBCWriter(Connection connection, String tableName, Collection<String> columnNames) throws SQLException, IllegalArgumentException {
+    this(connection.prepareStatement(prepareStatementQuery(tableName, columnNames)));
   }
 
   /**

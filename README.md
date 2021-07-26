@@ -40,13 +40,11 @@ https://github.com/anthoRx/parquet-sql/releases
 ```java
     SQLParquetReader parquetReader = new SQLParquetReader("fileName.parquet", new Configuration());
     
-    JDBCWriter jdbcWriter = new JDBCWriter(dataSource, "tableName", parquet.getFieldsNames());
+    JDBCWriter jdbcWriter = new JDBCWriter(dataSource, "tableName", parquetReader.getFieldsNames());
     
     Record currentRecord = parquetReader.read();
     while (currentRecord != null) {
-        record
-            .getRecordField(parquetReader.getFields())
-            .forEach(field -> field.read(jdbcWriter));
+        currentRecord.readAll(field -> field.read(jdbcWriter));
     
         jdbcWriter.addBatch();
         currentRecord = parquetReader.read();
