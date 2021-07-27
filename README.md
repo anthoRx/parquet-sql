@@ -2,44 +2,55 @@
 
 
 ## Maven dependency
+
+Pick last version in github release page:
+https://github.com/anthoRx/parquet-sql/releases
+
 ```xml
 <dependency>
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.4</version>
+    <version>${parquet-sql.version}</version>
 </dependency>
 ```
 
-## How to serialize a ResultSet in a Parquet file 
+## Read from SQL table to write into a Parquet
 ```java
-    ResultSet resultSet = /* statement */;
-    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+    JDBCReader jdbcReader = new JDBCReader(dataSource, "tableName", fetchSize);
     
     ParquetWriter<SQLRow> parquetWriter = SQLParquetWriter
-            .builder("FileName")
-            .withSchema("schemaName", resultSetMetaData)
-            .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
-            .build();
+        .builder("fileName.parquet")
+        .withSchema("schemaName", resultSetMetaData)
+        .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+        .build();
     
-    while (resultSet.next()) {
-        SQLRow row = SQLRowFactory.createSQLRow(rs);
-        parquetWriter.write(row);
+    SQLRow currentRow = jdbcReader.read();
+    
+    while (currentRow != null) {
+        parquetWriter.write(currentRow);
+        currentRow = jdbcReader.read();
     }
-
+    
     parquetWriter.close();
+    jdbcReader.close();
 ```
 
-# How to read a Parquet file to insert in a SQL database
-To insert in a SQL database records of a Parquet file, you have to initialize a RecordConsumerInitializer and JDBCWriter.  
-
-The RecordConsumerInitializer allows to provide information on  database connection and on the target table.  
-
-JDBCWriter is responsible to write the records of the provided Parquet file to the Database, according to the RecordConsumerInitializer initialized before. The batchSize has to be provided too.
- 
+# Read from Parquet to write into SQL table
 
 ```java
-    RecordConsumerInitializer consumerInitializer = new RecordConsumerInitializer(connection, "myTable");
+    SQLParquetReader parquetReader = new SQLParquetReader("fileName.parquet", new Configuration());
+    
+    JDBCWriter jdbcWriter = new JDBCWriter(dataSource, "tableName", parquetReader.getFieldsNames());
+    
+    Record currentRecord = parquetReader.read();
+    while (currentRecord != null) {
+        currentRecord.readAll(field -> field.read(jdbcWriter));
+    
+        jdbcWriter.addBatch();
+        currentRecord = parquetReader.read();
+    }
+    jdbcWriter.executeBatch();
 
-    JDBCWriter jdbcWriter = new JDBCWriter(consumerInitializer, "/tmp/file.parquet", 50000);
-    jdbcWriter.write();
+    parquetReader.close();
+    jdbcWriter.close();
 ```

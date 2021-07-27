@@ -6,7 +6,7 @@
 
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.6</version>
+    <version>0.7</version>
     <packaging>jar</packaging>
 
     <name>Parquet SQL</name>
@@ -61,7 +61,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- libraries -->
-        <parquet-hadoop.version>1.11.0</parquet-hadoop.version>
+        <parquet-hadoop.version>1.12.0</parquet-hadoop.version>
         <hadoop-core.version>1.2.1</hadoop-core.version>
 
         <!-- tests -->
@@ -197,7 +197,6 @@
                     </execution>
                 </executions>
             </plugin>
-
 
         </plugins>
     </build>
