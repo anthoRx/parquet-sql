@@ -61,7 +61,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- libraries -->
-        <parquet-hadoop.version>1.11.0</parquet-hadoop.version>
+        <parquet-hadoop.version>1.11.1</parquet-hadoop.version>
         <hadoop-core.version>1.2.1</hadoop-core.version>
 
         <!-- tests -->
