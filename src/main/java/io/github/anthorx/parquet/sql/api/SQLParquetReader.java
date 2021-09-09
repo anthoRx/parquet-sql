@@ -93,26 +93,18 @@ public class SQLParquetReader {
   }
 
   public Record read() throws IOException {
-    if (currentParquetReader == null) {
-      return readFromNextParquetReader();
+    Record recordResult  = null;
+
+    if (currentParquetReader != null) {
+      recordResult  = currentParquetReader.read();
     }
 
-    Record result = currentParquetReader.read();
-
-    if (result == null) {
-      return readFromNextParquetReader();
+    if (recordResult  == null && parquetReaderIterator.hasNext()) {
+        currentParquetReader = parquetReaderIterator.next();
+        recordResult  = read();
     }
 
-    return result;
-  }
-
-  private Record readFromNextParquetReader() throws IOException {
-    if (parquetReaderIterator.hasNext()) {
-      currentParquetReader = parquetReaderIterator.next();
-      return currentParquetReader.read();
-    } else {
-      return null;
-    }
+    return recordResult ;
   }
 
   public List<String> getFieldsNames() {

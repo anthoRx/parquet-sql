@@ -19,9 +19,7 @@ import io.github.anthorx.parquet.sql.parquet.model.Record;
 import io.github.anthorx.parquet.sql.parquet.model.RecordField;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.schema.Type;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -96,6 +94,20 @@ public class SQLParquetReaderTest {
 
     // Then the last line returns null
     assertNull(sqlParquetReader.read());
+  }
+
+  @Test
+  public void readingParquetFolderWithOneEmptyPartition() throws IOException {
+    SQLParquetReader sqlParquetReader = parquetReader("/testOneEmptyPartition");
+
+    Record currentRecord = sqlParquetReader.read();
+    int countRow = 0;
+    while (currentRecord != null) {
+      countRow++;
+      currentRecord = sqlParquetReader.read();
+    }
+
+    assertEquals(countRow,2);
   }
 
   @Test
