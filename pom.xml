@@ -6,7 +6,7 @@
 
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
 
     <name>Parquet SQL</name>
