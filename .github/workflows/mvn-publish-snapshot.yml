@@ -1,4 +1,4 @@
-name: Publish to Maven central
+name: Publish snapshot to Maven central
 
 on:
   push:
@@ -29,4 +29,4 @@ jobs:
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-      run:  mvn -B clean deploy
+      run:  mvn -B clean deploy -Dchangelist=SNAPSHOT
