@@ -7,11 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -19,9 +19,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCWriterTest {
-
-  @Mock
-  private DataSource dataSource;
 
   @Mock
   private Connection connection;
@@ -121,4 +118,33 @@ public class JDBCWriterTest {
     verify(preparedStatement, times(1)).close();
   }
 
+  @Test
+  public void JDBCWriter_whenTimezone_passToPrepareStatement() throws SQLException {
+    // Given JDBCWriters instantiated with a Timezone
+    TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+    doReturn(preparedStatement).when(connection).prepareStatement(anyString());
+    JDBCWriter jdbcWriter = new JDBCWriter(connection, "tableName", Collections.singleton("column"), tz);
+    JDBCWriter jdbcWriterPs = new JDBCWriter(preparedStatement, tz);
+
+    // When defining a date and/or a timestamp value
+    jdbcWriter.setDate(Date.valueOf("2020-01-01"));
+    jdbcWriter.setTimestamp(Timestamp.valueOf("2020-01-01 00:00:00"));
+    jdbcWriterPs.setDate(Date.valueOf("2020-01-01"));
+    jdbcWriterPs.setTimestamp(Timestamp.valueOf("2020-01-01 00:00:00"));
+
+    // Then the timestamp value is pass to the PrepareStatement
+    verify(preparedStatement, times(2))
+        .setDate(
+            eq(1),
+            eq(Date.valueOf("2020-01-01")),
+            argThat((c) -> c.getTimeZone().equals(tz))
+        );
+
+    verify(preparedStatement, times(2))
+        .setTimestamp(
+            eq(2),
+            eq(Timestamp.valueOf("2020-01-01 00:00:00")),
+            argThat((c) -> c.getTimeZone().equals(tz))
+        );
+  }
 }
