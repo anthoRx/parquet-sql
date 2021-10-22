@@ -6,7 +6,7 @@
 
     <groupId>io.github.anthorx</groupId>
     <artifactId>parquet-sql</artifactId>
-    <version>0.9</version>
+    <version>0.10-${changelist}</version>
     <packaging>jar</packaging>
 
     <name>Parquet SQL</name>
@@ -32,6 +32,10 @@
         <developer>
             <name>Guillaume Rossignol</name>
             <email>guillaume.rossignol@tutanota.com</email>
+        </developer>
+        <developer>
+            <name>Dany Dos Santos</name>
+            <email>dossantos.dany3@gmail.com</email>
         </developer>
     </developers>
 

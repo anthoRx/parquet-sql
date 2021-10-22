@@ -17,13 +17,10 @@ package io.github.anthorx.parquet.sql.api;
 
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
 
-import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.github.anthorx.parquet.sql.util.AssertionUtils.notEmpty;
@@ -41,9 +38,19 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
   private final PreparedStatement preparedStatement;
   private final List<String> errors;
   private int currentParameterIndex = 0;
+  private TimeZone timeZone;
 
   /**
-   * default constructor that should be used
+   * Default constructor that should be used.
+   * TimeZone is used to specify which timezone should be considered for Date and Timestamp types.
+   * If you want a custom prepare statement, use the other constructor.
+   */
+  public JDBCWriter(Connection connection, String tableName, Collection<String> columnNames, TimeZone timeZone) throws SQLException, IllegalArgumentException {
+    this(connection.prepareStatement(prepareStatementQuery(tableName, columnNames)), timeZone);
+  }
+
+  /**
+   * Default constructor that should be used
    * If you want a custom prepare statement, use the other constructor
    */
   public JDBCWriter(Connection connection, String tableName, Collection<String> columnNames) throws SQLException, IllegalArgumentException {
@@ -51,12 +58,22 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
   }
 
   /**
-   * if you want a custom prepareStatement, use this constructor.
-   * Otherwise for default behavior just provide datasource
+   * Constructor with a custom prepareStatement.
+   * If you want a custom prepareStatement, use this constructor.
    */
   public JDBCWriter(PreparedStatement preparedStatement) {
     this.preparedStatement = preparedStatement;
     this.errors = new ArrayList<>();
+  }
+
+  /**
+   * Constructor with a custom prepareStatement.
+   * If you want a custom prepareStatement, use this constructor.
+   */
+  public JDBCWriter(PreparedStatement preparedStatement, TimeZone timeZone) {
+    this.preparedStatement = preparedStatement;
+    this.errors = new ArrayList<>();
+    this.timeZone = timeZone;
   }
 
   protected static String prepareStatementQuery(String tableName, Collection<String> columnNames) throws IllegalArgumentException {
@@ -85,22 +102,6 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
 
   public void executeBatch() throws SQLException {
     this.preparedStatement.executeLargeBatch();
-  }
-
-  private int getNextIndex() {
-    return ++currentParameterIndex;
-  }
-
-  private void addError(SQLException e) {
-    errors.add("SQLState(" + e.getSQLState() + ") vendor code(" + e.getErrorCode() + ") : " + e.getMessage());
-  }
-
-  private void withException(SQLExceptionRunnable runnable) {
-    try {
-      runnable.run();
-    } catch (SQLException e) {
-      addError(e);
-    }
   }
 
   @Override
@@ -155,12 +156,24 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
 
   @Override
   public void setDate(Date value) {
-    withException(() -> this.preparedStatement.setDate(getNextIndex(), value));
+    withException(() -> {
+      if (this.timeZone != null) {
+        this.preparedStatement.setDate(getNextIndex(), value, Calendar.getInstance(this.timeZone));
+      } else {
+        this.preparedStatement.setDate(getNextIndex(), value);
+      }
+    });
   }
 
   @Override
   public void setTimestamp(Timestamp value) {
-    withException(() -> this.preparedStatement.setTimestamp(getNextIndex(), value));
+    withException(() -> {
+      if (this.timeZone != null) {
+        this.preparedStatement.setTimestamp(getNextIndex(), value, Calendar.getInstance(this.timeZone));
+      } else {
+        this.preparedStatement.setTimestamp(getNextIndex(), value);
+      }
+    });
   }
 
   @Override
@@ -179,4 +192,21 @@ public class JDBCWriter implements ReadRecordConsumer, AutoCloseable {
     this.preparedStatement.close();
     connection.close();
   }
+
+  private int getNextIndex() {
+    return ++currentParameterIndex;
+  }
+
+  private void addError(SQLException e) {
+    errors.add("SQLState(" + e.getSQLState() + ") vendor code(" + e.getErrorCode() + ") : " + e.getMessage());
+  }
+
+  private void withException(SQLExceptionRunnable runnable) {
+    try {
+      runnable.run();
+    } catch (SQLException e) {
+      addError(e);
+    }
+  }
+
 }
