@@ -22,7 +22,6 @@ import org.apache.parquet.io.api.Binary;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Timestamp;
-import java.util.TimeZone;
 import java.util.function.Consumer;
 
 /**
@@ -55,7 +54,6 @@ public class FieldTimestampConverter extends FieldConverter<Timestamp> {
   /**
    * INT96 Parquet physical format use first 8 bytes to store nanoseconds from midnight
    * and last 4 bytes to store julian days
-   * Subtract offset from UTC because Timestamp constructor will add the offset according to the local timezone.
    */
   @Override
   public void addBinary(Binary value) {
@@ -64,8 +62,7 @@ public class FieldTimestampConverter extends FieldConverter<Timestamp> {
     int julianDay = buf.getInt();
 
     long rawTimeInMillis = julianDayToMilliSeconds(julianDay) + timeOfDayNanos / NANOS_PER_MILLIS;
-    long offset = TimeZone.getDefault().getOffset(rawTimeInMillis);
-    acceptNewReadRecordFromValue(new Timestamp(rawTimeInMillis - offset));
+    acceptNewReadRecordFromValue(new Timestamp(rawTimeInMillis));
   }
 
   private long julianDayToMilliSeconds(long day) {

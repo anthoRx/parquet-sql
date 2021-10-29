@@ -17,14 +17,11 @@ package io.github.anthorx.parquet.sql.parquet.model;
 
 import io.github.anthorx.parquet.sql.jdbc.NullRecordFieldConstructor;
 import io.github.anthorx.parquet.sql.jdbc.ReadRecordConsumer;
-import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.Type;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Vector;
-import java.util.stream.Collectors;
 
 public class Record {
 
@@ -52,7 +49,8 @@ public class Record {
 
   /**
    * read all the recordField in the schema order
-   * @param schemaField used to define the record field order
+   *
+   * @param schemaField        used to define the record field order
    * @param readRecordConsumer the consumer used to consume the record fields
    */
   public void readAll(List<Type> schemaField, ReadRecordConsumer readRecordConsumer) {
