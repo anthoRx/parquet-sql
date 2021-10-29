@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -62,10 +63,10 @@ public class SQLParquetReaderTest {
 
   @Test
   public void readingParquetFile() throws IOException {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     SQLParquetReader sqlParquetReader = parquetReader("/test.parquet");
 
     Record record = sqlParquetReader.read();
-
     assertField("timestamp", record, Timestamp.valueOf("2019-02-04 00:00:00"));
     assertField("date", record, Date.valueOf("2019-01-17"));
     assertField("bd_8_3", record, new BigDecimal("88.333").setScale(3));
@@ -78,6 +79,19 @@ public class SQLParquetReaderTest {
     assertField("string", record, "a string");
     assertField("int", record, 5);
     assertField("bool", record, true);
+  }
+
+  @Test
+  public void readingTimestampWithLocalTimezone() throws IOException {
+    // Given a specific timezone +1 hour than UTC
+    TimeZone.setDefault(TimeZone.getTimeZone("CET"));
+
+    // When reading a UTC timestamp at 00:00:00 UTC
+    SQLParquetReader sqlParquetReader = parquetReader("/test.parquet");
+    Record record = sqlParquetReader.read();
+
+    // Then the timestamp integrate the local timezone
+    assertField("timestamp", record, Timestamp.valueOf("2019-02-04 01:00:00"));
   }
 
   @Test
